@@ -21,16 +21,18 @@
     h1 { color: #e94560; margin-bottom: 5px; text-align: center; }
     p { text-align: center; color: #b2bec3; }
 
-    /* Badge Shelf Styles */
+    /* Top Badge Shelf - Initially Hidden */
     .badge-shelf-container {
       width: 100%;
-      max-width: 640px;
+      max-width: 800px;
       background: #16213e;
       border: 2px solid #0f3460;
       border-radius: 12px;
       padding: 12px 20px;
       margin-bottom: 15px;
       text-align: center;
+      display: none; /* Hidden until 1st level completed */
+      animation: fadeIn 0.8s ease forwards;
     }
     .badge-shelf-title {
       font-size: 16px;
@@ -41,17 +43,17 @@
     .badge-shelf {
       display: flex;
       justify-content: center;
-      gap: 12px;
+      gap: 15px;
       flex-wrap: wrap;
     }
     .badge-item {
       display: flex;
       flex-direction: column;
       align-items: center;
-      width: 65px;
+      width: 70px;
       opacity: 0.3;
       filter: grayscale(100%);
-      transition: all 0.4s ease;
+      transition: all 0.5s ease;
     }
     .badge-item.unlocked {
       opacity: 1;
@@ -59,10 +61,10 @@
       transform: scale(1.05);
     }
     .badge-icon {
-      font-size: 26px;
+      font-size: 28px;
       background: #0f3460;
-      width: 48px;
-      height: 48px;
+      width: 52px;
+      height: 52px;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -78,62 +80,113 @@
       text-align: center;
     }
 
-    /* Game Container & Overlay */
+    /* Game Container & Enlarged Camera View (800x600) */
     .game-container {
       position: relative;
-      width: 640px;
-      height: 480px;
+      width: 800px;
+      height: 600px;
       border-radius: 12px;
       overflow: hidden;
       box-shadow: 0 8px 24px rgba(0,0,0,0.5);
       background: #000;
     }
+    .game-container:fullscreen {
+      width: 100vw;
+      height: 100vh;
+      border-radius: 0;
+    }
     video, canvas {
       position: absolute;
       top: 0;
       left: 0;
-      width: 640px;
-      height: 480px;
+      width: 100%;
+      height: 100%;
       transform: scaleX(-1);
+      object-fit: cover;
     }
     .overlay {
       position: absolute;
-      top: 15px;
+      top: 20px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.75);
-      padding: 12px 24px;
-      border-radius: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 14px 28px;
+      border-radius: 24px;
       text-align: center;
       z-index: 10;
-      min-width: 340px;
+      min-width: 380px;
     }
-    .prompt { font-size: 19px; font-weight: bold; color: #4ecca3; }
-    .score { font-size: 14px; margin-top: 5px; color: #ffd369; }
+    .prompt { font-size: 22px; font-weight: bold; color: #4ecca3; }
+    .score { font-size: 15px; margin-top: 6px; color: #ffd369; }
     .feedback {
       position: absolute;
-      bottom: 20px;
+      bottom: 25px;
       left: 50%;
       transform: translateX(-50%);
-      font-size: 24px;
+      font-size: 28px;
       font-weight: bold;
       z-index: 10;
-      padding: 8px 20px;
-      border-radius: 8px;
+      padding: 10px 24px;
+      border-radius: 10px;
     }
     .correct { background: rgba(46, 204, 113, 0.95); }
     .wrong { background: rgba(231, 76, 60, 0.95); }
 
+    /* Center Badge Zoom Overlay */
+    .badge-center-overlay {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 50;
+    }
+    .badge-popup {
+      background: #16213e;
+      border: 4px solid #ffd369;
+      border-radius: 20px;
+      padding: 30px;
+      text-align: center;
+      box-shadow: 0 0 30px rgba(255, 211, 105, 0.6);
+      animation: zoomOutBadge 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    .badge-popup-icon {
+      font-size: 80px;
+      background: #0f3460;
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 5px solid #ffd369;
+      margin: 0 auto 15px auto;
+    }
+    .badge-popup h2 { color: #ffd369; margin: 0 0 5px 0; font-size: 28px; }
+    .badge-popup p { color: #4ecca3; font-size: 18px; margin: 0; }
+
+    @keyframes zoomOutBadge {
+      0% { transform: scale(3); opacity: 0; }
+      50% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     .controls {
       margin-top: 15px;
       display: flex;
-      gap: 8px;
+      gap: 10px;
       flex-wrap: wrap;
       justify-content: center;
     }
     button {
-      padding: 10px 16px;
-      font-size: 14px;
+      padding: 11px 18px;
+      font-size: 15px;
       font-weight: bold;
       background: #0f3460;
       color: #fff;
@@ -143,6 +196,8 @@
       transition: background 0.2s;
     }
     button:hover { background: #e94560; }
+    .fullscreen-btn { background: #e67e22; border-color: #d35400; }
+    .fullscreen-btn:hover { background: #d35400; }
     .secondary-btn { background: #34495e; border-color: #576574; }
     .secondary-btn:hover { background: #2c3e50; }
     .reset-btn { background: #576574; border-color: #8395a7; }
@@ -246,11 +301,11 @@
 <body>
 
   <h1>Act It Out! - 22 Verb Grammar Master</h1>
-  <p>Complete all 22 action verbs on camera to unlock all 4 badges and claim your official certificate!</p>
+  <p>Act out the action verbs on camera, collect all level badges, and win your official certificate!</p>
 
-  <!-- Badge Shelf UI -->
-  <div class="badge-shelf-container">
-    <div class="badge-shelf-title">🏆 Your Action Verb Badges (Complete all 4 to get certified!)</div>
+  <!-- Top Badge Shelf (Hidden initially) -->
+  <div id="top-badge-shelf-container" class="badge-shelf-container">
+    <div class="badge-shelf-title">🏆 Your Earned Action Verb Badges</div>
     <div class="badge-shelf">
       <div id="badge-lvl1" class="badge-item">
         <div class="badge-icon">🏃</div>
@@ -271,8 +326,8 @@
     </div>
   </div>
 
-  <!-- Camera View -->
-  <div class="game-container">
+  <!-- Camera View (Enlarged 800x600) -->
+  <div id="game-box" class="game-container">
     <video id="webcam" autoplay playsinline></video>
     <canvas id="output"></canvas>
     
@@ -281,11 +336,21 @@
       <div id="score" class="score">Progress: 0 / 22 Verbs Completed</div>
     </div>
     <div id="feedback" class="feedback" style="display: none;"></div>
+
+    <!-- Center Badge Popup Zoom Animation -->
+    <div id="center-badge-modal" class="badge-center-overlay">
+      <div class="badge-popup">
+        <div id="center-badge-icon" class="badge-popup-icon">🏃</div>
+        <h2>🎉 BADGE UNLOCKED!</h2>
+        <p id="center-badge-title">Level 1: Basics Completed!</p>
+      </div>
+    </div>
   </div>
 
   <div class="controls">
     <button id="start-btn" onclick="startGame()">Start Game</button>
     <button id="continue-btn" onclick="continueGame()" style="display: none; background: #2ecc71; border-color: #27ae60;">▶️ Continue Game</button>
+    <button onclick="toggleFullscreen()" class="fullscreen-btn">📺 Fullscreen Camera</button>
     <button id="cert-btn" onclick="openCertModal()" style="display: none; background: #f1c40f; border-color: #f39c12; color: #2c3e50;">🎓 Claim Official Certificate</button>
     <button onclick="openExportModal()" class="secondary-btn">📥 Export Save Code</button>
     <button onclick="openImportModal()" class="secondary-btn">📤 Import Save Code</button>
@@ -323,7 +388,7 @@
     <div class="modal-content">
       <div class="no-print">
         <h3>🎉 Congratulations! You Mastered All 22 Verbs!</h3>
-        <p>Fill in your details to generate your Official Grammar Master Certificate:</p>
+        <p>Fill in your details to generate your Official Certificate:</p>
         
         <div class="input-form">
           <input type="text" id="student-name-input" placeholder="Student's Full Name" required />
@@ -332,329 +397,7 @@
         </div>
       </div>
 
-      <!-- Printable Certificate Box -->
       <div id="certificate-view">
         <h2>Certificate of Achievement</h2>
         <p>This certifies that</p>
-        <div id="student-name-display" class="cert-field">Student Name</div>
-        <p>from</p>
-        <div id="school-name-display" class="cert-field">School Name</div>
-        <p style="margin-top: 15px;">has successfully identified and acted out all <strong>22 Physical Action Verbs</strong> on camera,</p>
-        <p>demonstrating complete mastery in <strong>English Action Verb Grammar</strong>!</p>
-        
-        <div class="cert-badges">
-          <div class="cert-badge-item">🏃</div>
-          <div class="cert-badge-item">🦅</div>
-          <div class="cert-badge-item">🧹</div>
-          <div class="cert-badge-item">⚡</div>
-        </div>
-
-        <div style="display: flex; justify-content: space-between; margin-top: 25px; padding: 0 30px; font-size: 13px; color: #2d3436;">
-          <div>
-            <div style="border-top: 1px solid #2d3436; width: 140px; margin-bottom: 5px;"></div>
-            <strong>AI Grammar Teacher</strong>
-          </div>
-          <div>
-            <div id="cert-date" style="border-top: 1px solid #2d3436; width: 140px; margin-bottom: 5px;"></div>
-            <strong>Date Awarded</strong>
-          </div>
-        </div>
-      </div>
-
-      <div class="no-print" style="margin-top: 20px; display: flex; justify-content: center; gap: 10px;">
-        <button onclick="window.print()" style="background: #2ecc71; border-color: #27ae60;">🖨️ Print / Save as PDF</button>
-        <button onclick="closeModal('modal-overlay')" style="background: #e94560; border-color: #c0392b;">Close</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // Full 22 Action Verb List Categorized into 4 Levels
-    const levelQuestions = {
-      1: [ // Level 1: Basics (5)
-        { sentence: "Can you _____ up high into the air?", target: "jump", verb: "JUMP (Jump up high)" },
-        { sentence: "She loves to _____ happy hands in class!", target: "clap", verb: "CLAP (Clap hands together)" },
-        { sentence: "Please _____ down on your chair.", target: "sit", verb: "SIT (Sit down low)" },
-        { sentence: "Always _____ up tall when singing.", target: "stand", verb: "STAND (Stand up tall)" },
-        { sentence: "Can you _____ on one leg like a flamingo?", target: "hop", verb: "HOP (Hop on one foot)" }
-      ],
-      2: [ // Level 2: Upper Body & Gestures (6)
-        { sentence: "The birds _____ high across the sky.", target: "fly", verb: "FLY (Raise arms wide)" },
-        { sentence: "Always _____ your hand to say hello.", target: "wave", verb: "WAVE (Wave one hand high)" },
-        { sentence: "Please _____ both arms up to the ceiling.", target: "stretch", verb: "STRETCH (Stretch both arms high)" },
-        { sentence: "He will _____ the ball across the yard.", target: "throw", verb: "THROW (Mime throwing a ball)" },
-        { sentence: "Try to _____ the ball with both hands!", target: "catch", verb: "CATCH (Mime catching a ball)" },
-        { sentence: "Please _____ at the correct answer on screen.", target: "point", verb: "POINT (Point at camera)" }
-      ],
-      3: [ // Level 3: Daily Activities & Tasks (5)
-        { sentence: "Use a pencil to _____ your name.", target: "write", verb: "WRITE (Mime writing in air)" },
-        { sentence: "I love to _____ colorful pictures.", target: "draw", verb: "DRAW (Mime drawing in air)" },
-        { sentence: "Open your book and _____ silently.", target: "read", verb: "READ (Hold hands out like a book)" },
-        { sentence: "Please _____ your desk after painting.", target: "clean", verb: "CLEAN (Wipe hands back and forth)" },
-        { sentence: "Always _____ your hands before eating.", target: "wash", verb: "WASH (Rub hands together)" }
-      ],
-      4: [ // Level 4: High Energy & Expressions (6)
-        { sentence: "Please don't _____ inside the quiet room!", target: "shout", verb: "SHOUT (Cup hands around mouth)" },
-        { sentence: "Always _____ to show a happy face!", target: "smile", verb: "SMILE (Point to a big smile)" },
-        { sentence: "The funny joke made everyone _____ out loud.", target: "laugh", verb: "LAUGH (Hold belly and laugh)" },
-        { sentence: "Let's _____ our favorite song together!", target: "sing", verb: "SING (Hold imaginary microphone)" },
-        { sentence: "You can _____ across the playground freely.", target: "skip", verb: "SKIP (Skip or step side to side)" },
-        { sentence: "Gently _____ your nose to answer.", target: "touch", verb: "TOUCH (Touch your nose)" }
-      ]
-    };
-
-    let currentLevel = 1;
-    let currentQIndex = 0;
-    let totalCompletedVerbs = 0;
-    let score = 0;
-    let isDetecting = false;
-    let unlockedBadges = { 1: false, 2: false, 3: false, 4: false };
-
-    const videoElement = document.getElementById('webcam');
-    const canvasElement = document.getElementById('output');
-    const canvasCtx = canvasElement.getContext('2d');
-    const promptEl = document.getElementById('prompt');
-    const scoreEl = document.getElementById('score');
-    const feedbackEl = document.getElementById('feedback');
-
-    window.addEventListener('load', () => { loadProgress(); });
-
-    const pose = new Pose({
-      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
-    });
-
-    pose.setOptions({
-      modelComplexity: 1,
-      smoothLandmarks: true,
-      minDetectionConfidence: 0.6,
-      minTrackingConfidence: 0.6
-    });
-
-    pose.onResults(onResults);
-
-    const camera = new Camera(videoElement, {
-      onFrame: async () => { await pose.send({ image: videoElement }); },
-      width: 640,
-      height: 480
-    });
-    camera.start();
-
-    function saveProgress() {
-      const data = {
-        level: currentLevel,
-        qIndex: currentQIndex,
-        completedVerbs: totalCompletedVerbs,
-        score: score,
-        badges: unlockedBadges
-      };
-      localStorage.setItem('actItOutProgress', JSON.stringify(data));
-    }
-
-    function loadProgress() {
-      const saved = localStorage.getItem('actItOutProgress');
-      if (saved) {
-        const data = JSON.parse(saved);
-        currentLevel = data.level || 1;
-        currentQIndex = data.qIndex || 0;
-        totalCompletedVerbs = data.completedVerbs || 0;
-        score = data.score || 0;
-        unlockedBadges = data.badges || { 1: false, 2: false, 3: false, 4: false };
-
-        for (let l in unlockedBadges) {
-          if (unlockedBadges[l]) {
-            document.getElementById(`badge-lvl${l}`).classList.add('unlocked');
-          } else {
-            document.getElementById(`badge-lvl${l}`).classList.remove('unlocked');
-          }
-        }
-
-        if (totalCompletedVerbs > 0) {
-          document.getElementById('start-btn').style.display = 'none';
-          document.getElementById('continue-btn').style.display = 'inline-block';
-          document.getElementById('reset-btn').style.display = 'inline-block';
-          promptEl.innerText = `Welcome back! Level ${currentLevel} ready.`;
-          scoreEl.innerText = `Progress: ${totalCompletedVerbs} / 22 Verbs Completed`;
-        }
-
-        if (unlockedBadges[1] && unlockedBadges[2] && unlockedBadges[3] && unlockedBadges[4]) {
-          document.getElementById('cert-btn').style.display = 'inline-block';
-        }
-      }
-    }
-
-    /* Export & Import Functions */
-    function openExportModal() {
-      saveProgress();
-      const rawData = localStorage.getItem('actItOutProgress') || JSON.stringify({ level: 1, qIndex: 0, completedVerbs: 0, score: 0, badges: unlockedBadges });
-      const encodedCode = btoa(rawData);
-      document.getElementById('export-code-text').value = encodedCode;
-      document.getElementById('export-modal').style.display = 'flex';
-    }
-
-    function copySaveCode() {
-      const textEl = document.getElementById('export-code-text');
-      textEl.select();
-      document.execCommand('copy');
-      alert("✅ Save code copied to clipboard!");
-    }
-
-    function openImportModal() {
-      document.getElementById('import-code-input').value = "";
-      document.getElementById('import-modal').style.display = 'flex';
-    }
-
-    function applySaveCode() {
-      const code = document.getElementById('import-code-input').value.trim();
-      if (!code) return alert("Please paste a valid save code!");
-
-      try {
-        const decoded = atob(code);
-        JSON.parse(decoded);
-        localStorage.setItem('actItOutProgress', decoded);
-        loadProgress();
-        closeModal('import-modal');
-        alert("🎉 Progress successfully loaded onto this device!");
-      } catch (e) {
-        alert("❌ Invalid save code! Please double-check and try again.");
-      }
-    }
-
-    function closeModal(id) {
-      document.getElementById(id).style.display = 'none';
-    }
-
-    function resetProgress() {
-      if (confirm("Are you sure you want to reset all progress on this device?")) {
-        localStorage.removeItem('actItOutProgress');
-        location.reload();
-      }
-    }
-
-    function startGame() {
-      score = 0;
-      currentLevel = 1;
-      currentQIndex = 0;
-      totalCompletedVerbs = 0;
-      document.getElementById('start-btn').style.display = 'none';
-      document.getElementById('reset-btn').style.display = 'inline-block';
-      nextQuestion();
-    }
-
-    function continueGame() {
-      document.getElementById('continue-btn').style.display = 'none';
-      nextQuestion();
-    }
-
-    function nextQuestion() {
-      feedbackEl.style.display = 'none';
-      const questions = levelQuestions[currentLevel];
-      
-      if (currentQIndex >= questions.length) {
-        unlockBadge(currentLevel);
-        currentLevel++;
-        currentQIndex = 0;
-        saveProgress();
-        
-        if (currentLevel > 4) {
-          promptEl.innerText = "🏆 ALL 22 VERBS COMPLETED!";
-          scoreEl.innerText = `Final Progress: 22 / 22 Verbs | All 4 Badges Unlocked!`;
-          document.getElementById('cert-btn').style.display = 'inline-block';
-          return;
-        }
-      }
-
-      saveProgress();
-      const q = levelQuestions[currentLevel][currentQIndex];
-      promptEl.innerText = q.sentence;
-      scoreEl.innerText = `Lvl ${currentLevel} | Verb ${totalCompletedVerbs + 1}/22 | Action: ${q.verb}`;
-      isDetecting = true;
-    }
-
-    function unlockBadge(level) {
-      unlockedBadges[level] = true;
-      const badgeEl = document.getElementById(`badge-lvl${level}`);
-      if (badgeEl) badgeEl.classList.add('unlocked');
-      saveProgress();
-    }
-
-    function onResults(results) {
-      canvasCtx.save();
-      canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-
-      if (results.poseLandmarks && isDetecting) {
-        const lm = results.poseLandmarks;
-        const leftWrist = lm[15], rightWrist = lm[16];
-        const leftShoulder = lm[11], rightShoulder = lm[12];
-        const nose = lm[0];
-        const leftAnkle = lm[27], rightAnkle = lm[28];
-
-        let action = null;
-
-        // General Pose Heuristics matching 22 actions
-        if (leftWrist.y < leftShoulder.y && rightWrist.y < rightShoulder.y && Math.abs(leftWrist.x - rightWrist.x) > 0.4) {
-          action = "fly";
-        } else if (Math.hypot(leftWrist.x - rightWrist.x, leftWrist.y - rightWrist.y) < 0.12) {
-          action = "clap";
-        } else if (leftWrist.y < nose.y - 0.1 || rightWrist.y < nose.y - 0.1) {
-          action = "wave";
-        } else if (leftShoulder.y < 0.3) {
-          action = "jump";
-        } else if (leftWrist.y < leftShoulder.y - 0.25 && rightWrist.y < rightShoulder.y - 0.25) {
-          action = "stretch";
-        } else if (Math.hypot(leftWrist.x - nose.x, leftWrist.y - nose.y) < 0.15 || Math.hypot(rightWrist.x - nose.x, rightWrist.y - nose.y) < 0.15) {
-          action = "touch";
-        } else if (leftShoulder.y > 0.6) {
-          action = "sit";
-        } else {
-          // Default fallthrough gesture recognition for active level target
-          const currentTarget = levelQuestions[currentLevel][currentQIndex].target;
-          if (leftWrist.y < leftShoulder.y || rightWrist.y < rightShoulder.y) {
-            action = currentTarget;
-          }
-        }
-
-        if (action) evaluateAnswer(action);
-      }
-      canvasCtx.restore();
-    }
-
-    function evaluateAnswer(action) {
-      isDetecting = false;
-      const target = levelQuestions[currentLevel][currentQIndex].target;
-
-      if (action === target) {
-        score += 10;
-        totalCompletedVerbs++;
-        feedbackEl.innerText = `Correct! Action: ${action.toUpperCase()}`;
-        feedbackEl.className = "feedback correct";
-      } else {
-        feedbackEl.innerText = `Try Again! Needed: ${target.toUpperCase()}`;
-        feedbackEl.className = "feedback wrong";
-      }
-
-      feedbackEl.style.display = 'block';
-      currentQIndex++;
-      saveProgress();
-
-      setTimeout(() => { nextQuestion(); }, 2500);
-    }
-
-    function openCertModal() {
-      document.getElementById('cert-date').innerText = new Date().toLocaleDateString();
-      document.getElementById('modal-overlay').style.display = 'flex';
-    }
-
-    function updateCertDetails() {
-      const nameVal = document.getElementById('student-name-input').value;
-      const schoolVal = document.getElementById('school-name-input').value;
-      
-      if (nameVal.trim() !== "") {
-        document.getElementById('student-name-display').innerText = nameVal;
-      }
-      if (schoolVal.trim() !== "") {
-        document.getElementById('school-name-display').innerText = schoolVal;
-      }
-    }
-  </script>
-</body>
-</html>
+        <div id="student-name-display
