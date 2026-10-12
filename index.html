@@ -128,10 +128,12 @@
       margin-top: 15px;
       display: flex;
       gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
     }
     button {
-      padding: 10px 20px;
-      font-size: 16px;
+      padding: 10px 18px;
+      font-size: 15px;
       font-weight: bold;
       background: #0f3460;
       color: #fff;
@@ -141,9 +143,12 @@
       transition: background 0.2s;
     }
     button:hover { background: #e94560; }
-    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .secondary-btn { background: #34495e; border-color: #576574; }
+    .secondary-btn:hover { background: #2c3e50; }
+    .reset-btn { background: #576574; border-color: #8395a7; }
+    .reset-btn:hover { background: #ee5253; }
 
-    /* Certificate Modal */
+    /* Modals */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; width: 100vw; height: 100vh;
@@ -165,7 +170,23 @@
       text-align: center;
     }
 
-    /* Print Styles for Official Certificate */
+    .input-form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-width: 400px;
+      margin: 0 auto 20px auto;
+    }
+    .input-form input, .input-form textarea {
+      padding: 12px;
+      font-size: 15px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      text-align: center;
+      width: 100%;
+    }
+
+    /* Certificate Box */
     #certificate-view {
       border: 10px double #0f3460;
       padding: 30px;
@@ -175,23 +196,26 @@
     }
     #certificate-view h2 {
       font-family: 'Georgia', serif;
-      font-size: 32px;
+      font-size: 30px;
       color: #0f3460;
       margin: 0 0 10px 0;
       text-transform: uppercase;
       letter-spacing: 2px;
     }
-    #certificate-view p { color: #636e72; font-size: 16px; margin: 8px 0; }
-    #student-name-display {
+    #certificate-view p { color: #636e72; font-size: 16px; margin: 6px 0; }
+    
+    .cert-field {
       font-family: 'Georgia', serif;
-      font-size: 36px;
       font-weight: bold;
       color: #e94560;
       border-bottom: 2px solid #2d3436;
       display: inline-block;
-      padding: 0 20px 5px 20px;
-      margin: 15px 0;
+      padding: 0 15px 4px 15px;
+      margin: 5px 0;
     }
+    #student-name-display { font-size: 34px; }
+    #school-name-display { font-size: 22px; color: #0f3460; }
+
     .cert-badges {
       display: flex;
       justify-content: center;
@@ -257,7 +281,37 @@
 
   <div class="controls">
     <button id="start-btn" onclick="startGame()">Start Game</button>
-    <button id="cert-btn" onclick="openCertModal()" style="display: none; background: #2ecc71; border-color: #27ae60;">🎓 Claim Certificate</button>
+    <button id="continue-btn" onclick="continueGame()" style="display: none; background: #2ecc71; border-color: #27ae60;">▶️ Continue Game</button>
+    <button id="cert-btn" onclick="openCertModal()" style="display: none; background: #f1c40f; border-color: #f39c12; color: #2c3e50;">🎓 Claim Certificate</button>
+    <button onclick="openExportModal()" class="secondary-btn">📥 Export Save Code</button>
+    <button onclick="openImportModal()" class="secondary-btn">📤 Import Save Code</button>
+    <button id="reset-btn" class="reset-btn" onclick="resetProgress()" style="display: none;">🔄 Reset</button>
+  </div>
+
+  <!-- Export Modal -->
+  <div id="export-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 500px;">
+      <h3>📥 Export Save Progress Code</h3>
+      <p>Copy this code to use on another device or computer:</p>
+      <div class="input-form">
+        <textarea id="export-code-text" rows="4" readonly style="font-family: monospace; font-size: 13px; word-break: break-all;"></textarea>
+        <button onclick="copySaveCode()" style="background: #2ecc71; border-color: #27ae60;">📋 Copy Code to Clipboard</button>
+      </div>
+      <button onclick="closeModal('export-modal')" style="background: #e94560;">Close</button>
+    </div>
+  </div>
+
+  <!-- Import Modal -->
+  <div id="import-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 500px;">
+      <h3>📤 Import Save Progress Code</h3>
+      <p>Paste your Save Progress Code from another device below:</p>
+      <div class="input-form">
+        <textarea id="import-code-input" rows="4" placeholder="Paste your save code here..." style="font-family: monospace; font-size: 13px;"></textarea>
+        <button onclick="applySaveCode()" style="background: #0f3460;">Load Progress</button>
+      </div>
+      <button onclick="closeModal('import-modal')" style="background: #e94560;">Cancel</button>
+    </div>
   </div>
 
   <!-- Certificate Modal -->
@@ -265,19 +319,24 @@
     <div class="modal-content">
       <div class="no-print">
         <h3>🎉 Congratulations! You Unlocked All Badges!</h3>
-        <p>Enter the student's name to generate their Official Certificate of Achievement:</p>
-        <input type="text" id="student-name-input" placeholder="Enter Student's Full Name" style="padding: 10px; font-size: 16px; width: 80%; margin-bottom: 20px; text-align: center; border-radius: 6px; border: 1px solid #ccc;">
-        <br>
-        <button onclick="updateCertName()" style="background: #0f3460; margin-bottom: 20px;">Generate Certificate</button>
+        <p>Fill in the student details below to generate the certificate:</p>
+        
+        <div class="input-form">
+          <input type="text" id="student-name-input" placeholder="Student's Full Name" required />
+          <input type="text" id="school-name-input" placeholder="School Name" required />
+          <button onclick="updateCertDetails()" style="background: #0f3460; border-color: #0f3460;">Update Certificate</button>
+        </div>
       </div>
 
       <!-- Printable Certificate Box -->
       <div id="certificate-view">
         <h2>Certificate of Achievement</h2>
         <p>This certifies that</p>
-        <div id="student-name-display">Student Name</div>
-        <p>has successfully identified and acted out all physical action verbs,</p>
-        <p>demonstrating mastery in <strong>English Action Verb Grammar</strong>!</p>
+        <div id="student-name-display" class="cert-field">Student Name</div>
+        <p>from</p>
+        <div id="school-name-display" class="cert-field">School Name</div>
+        <p style="margin-top: 15px;">has successfully identified and acted out all physical action verbs,</p>
+        <p>demonstrating outstanding mastery in <strong>English Action Verb Grammar</strong>!</p>
         
         <div class="cert-badges">
           <div class="cert-badge-item">🏃</div>
@@ -298,14 +357,13 @@
       </div>
 
       <div class="no-print" style="margin-top: 20px; display: flex; justify-content: center; gap: 10px;">
-        <button onclick="window.print()" style="background: #2ecc71; border-color: #27ae60;">🖨️ Print / Download PDF</button>
-        <button onclick="closeCertModal()" style="background: #e94560; border-color: #c0392b;">Close</button>
+        <button onclick="window.print()" style="background: #2ecc71; border-color: #27ae60;">🖨️ Print / Save as PDF</button>
+        <button onclick="closeModal('modal-overlay')" style="background: #e94560; border-color: #c0392b;">Close</button>
       </div>
     </div>
   </div>
 
   <script>
-    // Question Levels
     const levelQuestions = {
       1: [
         { sentence: "Can you _____ up high into the air?", target: "jump", verb: "JUMP (Jump up)" },
@@ -333,7 +391,8 @@
     const scoreEl = document.getElementById('score');
     const feedbackEl = document.getElementById('feedback');
 
-    // Initialize MediaPipe Pose
+    window.addEventListener('load', () => { loadProgress(); });
+
     const pose = new Pose({
       locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
     });
@@ -354,111 +413,34 @@
     });
     camera.start();
 
-    function startGame() {
-      score = 0;
-      currentLevel = 1;
-      currentQIndex = 0;
-      document.getElementById('start-btn').style.display = 'none';
-      nextQuestion();
+    function saveProgress() {
+      const data = { level: currentLevel, qIndex: currentQIndex, score: score, badges: unlockedBadges };
+      localStorage.setItem('actItOutProgress', JSON.stringify(data));
     }
 
-    function nextQuestion() {
-      feedbackEl.style.display = 'none';
-      
-      const questions = levelQuestions[currentLevel];
-      
-      // Check if current level is completed
-      if (currentQIndex >= questions.length) {
-        unlockBadge(currentLevel);
-        currentLevel++;
-        currentQIndex = 0;
-        
-        if (currentLevel > 3) {
-          promptEl.innerText = "🏆 ALL LEVELS COMPLETED!";
-          scoreEl.innerText = `Final Score: ${score} | All 3 Badges Unlocked!`;
-          document.getElementById('cert-btn').style.display = 'inline-block';
-          return;
-        }
-      }
+    function loadProgress() {
+      const saved = localStorage.getItem('actItOutProgress');
+      if (saved) {
+        const data = JSON.parse(saved);
+        currentLevel = data.level || 1;
+        currentQIndex = data.qIndex || 0;
+        score = data.score || 0;
+        unlockedBadges = data.badges || { 1: false, 2: false, 3: false };
 
-      const q = levelQuestions[currentLevel][currentQIndex];
-      promptEl.innerText = q.sentence;
-      scoreEl.innerText = `Score: ${score} | Level: ${currentLevel} | Action: ${q.verb}`;
-      
-      isDetecting = true;
-    }
-
-    function unlockBadge(level) {
-      unlockedBadges[level] = true;
-      const badgeEl = document.getElementById(`badge-lvl${level}`);
-      if (badgeEl) badgeEl.classList.add('unlocked');
-    }
-
-    function onResults(results) {
-      canvasCtx.save();
-      canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-
-      if (results.poseLandmarks && isDetecting) {
-        const lm = results.poseLandmarks;
-        const leftWrist = lm[15], rightWrist = lm[16];
-        const leftShoulder = lm[11], rightShoulder = lm[12];
-        const nose = lm[0];
-
-        let action = null;
-
-        // Detection Logic
-        if (leftWrist.y < leftShoulder.y && rightWrist.y < rightShoulder.y && Math.abs(leftWrist.x - rightWrist.x) > 0.4) {
-          action = "fly";
-        } else if (Math.hypot(leftWrist.x - rightWrist.x, leftWrist.y - rightWrist.y) < 0.12) {
-          action = "clap";
-        } else if (leftWrist.y < nose.y - 0.1 || rightWrist.y < nose.y - 0.1) {
-          action = "wave";
-        } else if (leftShoulder.y < 0.35 && rightShoulder.y < 0.35) {
-          action = "jump";
-        } else if (leftWrist.y < leftShoulder.y - 0.25 && rightWrist.y < rightShoulder.y - 0.25) {
-          action = "stretch";
+        for (let l in unlockedBadges) {
+          if (unlockedBadges[l]) {
+            document.getElementById(`badge-lvl${l}`).classList.add('unlocked');
+          } else {
+            document.getElementById(`badge-lvl${l}`).classList.remove('unlocked');
+          }
         }
 
-        if (action) evaluateAnswer(action);
-      }
-      canvasCtx.restore();
-    }
+        if (currentLevel > 1 || currentQIndex > 0) {
+          document.getElementById('start-btn').style.display = 'none';
+          document.getElementById('continue-btn').style.display = 'inline-block';
+          document.getElementById('reset-btn').style.display = 'inline-block';
+          promptEl.innerText = `Welcome back! Level ${currentLevel} ready.`;
+          scoreEl.innerText = `Score: ${score}`;
+        }
 
-    function evaluateAnswer(action) {
-      isDetecting = false;
-      const target = levelQuestions[currentLevel][currentQIndex].target;
-
-      if (action === target) {
-        score += 10;
-        feedbackEl.innerText = `Correct! Action: ${action.toUpperCase()}`;
-        feedbackEl.className = "feedback correct";
-      } else {
-        feedbackEl.innerText = `Wrong! Detected: ${action.toUpperCase()}`;
-        feedbackEl.className = "feedback wrong";
-      }
-
-      feedbackEl.style.display = 'block';
-      currentQIndex++;
-
-      setTimeout(() => { nextQuestion(); }, 2500);
-    }
-
-    /* Certificate Modal Functions */
-    function openCertModal() {
-      document.getElementById('cert-date').innerText = new Date().toLocaleDateString();
-      document.getElementById('modal-overlay').style.display = 'flex';
-    }
-
-    function closeCertModal() {
-      document.getElementById('modal-overlay').style.display = 'none';
-    }
-
-    function updateCertName() {
-      const inputVal = document.getElementById('student-name-input').value;
-      if (inputVal.trim() !== "") {
-        document.getElementById('student-name-display').innerText = inputVal;
-      }
-    }
-  </script>
-</body>
-</html>
+        if (unlocked
