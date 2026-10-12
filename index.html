@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Act It Out! - Ultimate Action Verb AI Game</title>
+  
+  <!-- Tailwind CSS & FontAwesome Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- MediaPipe Pose and Camera Utils -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+
+  <style>
+    body {
+      font-family: 'Quicksand', sans-serif;
+      background: radial-gradient(circle at center, #1b1035 0%, #0d0722 100%);
+      min-height: 100vh;
+      color: #fff;
+    }
+    .font-game {
+      font-family: 'Fredoka One', cursive;
+    }
+    .mirror {
+      transform: scaleX(-1);
+    }
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .glass-dark {
+      background: rgba(10, 15, 30, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .bounce-subtle {
+      animation: bounceSubtle 1.8s infinite ease-in-out;
+    }
+    @keyframes bounceSubtle {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+    .pulse-glow {
+      animation: pulseGlow 2s infinite alternate;
+    }
+    @keyframes pulseGlow {
+      0% { box-shadow: 0 0 10px rgba(236, 72, 153, 0.3); }
+      100% { box-shadow: 0 0 25px rgba(236, 72, 153, 0.7); }
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0,0,0,0.2);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(236, 72, 153, 0.5);
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body class="flex flex-col min-h-screen selection:bg-pink-500 selection:text-white">
+
+  <header class="w-full glass-panel sticky top-0 z-40 px-4 py-3 shadow-xl">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="showScreen('menu-screen')">
+        <div class="bg-gradient-to-tr from-pink-500 via-purple-500 to-yellow-400 p-2.5 rounded-2xl shadow-lg text-white">
+          <i class="fa-solid fa-person-running text-2xl"></i>
+        </div>
+        <div>
+          <h1 class="font-game text-2xl md:text-3xl tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-yellow-300 via-pink-400 to-cyan-300">
+            Act It Out!
+          </h1>
+          <p class="text-[10px] text-purple-300 font-bold tracking-widest hidden sm:block uppercase">20+ AI Detected Camera Action Verbs</p>
+        </div>
+      </div>
+
+      <!-- Quick Stats & Settings Controls -->
+      <div class="flex items-center space-x-3">
+        <div class="hidden sm:flex items-center bg-black/40 px-3 py-1.5 rounded-xl border border-white/10 text-xs">
+          <i class="fa-solid fa-trophy text-yellow-400 mr-2"></i>
+          <span>High Score: <strong id="global-highscore" class="text-yellow-300">0</strong></span>
+        </div>
+        <button id="audio-toggle-btn" onclick="toggleAudio()" class="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 transition border border-white/10 text-yellow-300" title="Toggle Audio">
+          <i id="audio-icon" class="fa-solid fa-volume-high text-lg"></i>
+        </button>
+        <button onclick="toggleFullScreen()" class="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 transition border border-white/10 text-cyan-300" title="Fullscreen">
+          <i class="fa-solid fa-expand text-lg"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto p-3 md:p-6 flex flex-col justify-center items-center relative">
+
+    <section id="menu-screen" class="w-full max-w-4xl text-center py-4 flex flex-col items-center">
+      <div class="inline-block p-4 rounded-full bg-pink-500/20 mb-3 border border-pink-500/40 bounce-subtle">
+        <i class="fa-solid fa-camera text-4xl text-pink-400"></i>
+      </div>
+      <h2 class="font-game text-3xl md:text-5xl text-white mb-2">Show the Action Verb through the AI Camera!</h2>
+      <p class="text-purple-200 text-sm md:text-base mb-6 max-w-xl">
+        Select a category or mode, step in front of your camera, and physicalize missing action verbs in real-time!
+      </p>
+
+      <!-- Category Filter Tabs -->
+      <div class="w-full glass-dark p-4 rounded-3xl border border-white/10 mb-6 text-left">
+        <h3 class="font-game text-lg text-yellow-300 mb-3 flex items-center">
+          <i class="fa-solid fa-filter text-pink-400 mr-2"></i> 1. Choose Verb Category
+        </h3>
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+          <button onclick="selectCategory('all')" id="cat-all" class="cat-btn bg-pink-500 text-white font-semibold text-xs py-2.5 px-3 rounded-2xl transition border border-pink-400 shadow-lg text-center">
+            <i class="fa-solid fa-globe block text-base mb-1"></i> All Verbs (22)
+          </button>
+          <button onclick="selectCategory('physical')" id="cat-physical" class="cat-btn bg-white/5 hover:bg-white/15 text-purple-200 font-semibold text-xs py-2.5 px-3 rounded-2xl transition border border-white/10 text-center">
+            <i class="fa-solid fa-child-reaching block text-base mb-1"></i> Physical Body
+          </button>
+          <button onclick="selectCategory('upper')" id="cat-upper" class="cat-btn bg-white/5 hover:bg-white/15 text-purple-200 font-semibold text-xs py-2.5 px-3 rounded-2xl transition border border-white/10 text-center">
+            <i class="fa-solid fa-hands block text-base mb-1"></i> Hand & Upper
+          </button>
+          <button onclick="selectCategory('daily')" id="cat-daily" class="cat-btn bg-white/5 hover:bg-white/15 text-purple-200 font-semibold text-xs py-2.5 px-3 rounded-2xl transition border border-white/10 text-center">
+            <i class="fa-solid fa-utensils block text-base mb-1"></i> Daily Actions
+          </button>
+          <button onclick="selectCategory('expressive')" id="cat-expressive" class="cat-btn bg-white/5 hover:bg-white/15 text-purple-200 font-semibold text-xs py-2.5 px-3 rounded-2xl transition border border-white/10 text-center">
+            <i class="fa-solid fa-face-smile block text-base mb-1"></i> Expressive
+          </button>
+        </div>
+      </div>
+
+      <!-- Play Modes Selection Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5 w-full mb-6">
+        <div onclick="startGame('practice')" class="glass-panel p-5 rounded-3xl hover:border-pink-400 hover:scale-[1.02] transition cursor-pointer text-left group relative overflow-hidden">
+          <div class="w-12 h-12 rounded-2xl bg-cyan-500/20 flex items-center justify-center text-cyan-300 mb-3 text-2xl group-hover:bg-cyan-500 group-hover:text-white transition">
+            <i class="fa-solid fa-graduation-cap"></i>
+          </div>
+          <h3 class="font-game text-2xl text-white mb-1">Practice & Learn</h3>
+          <p class="text-xs text-purple-200">No strict time limit! Visual gesture guides, posture tips, and unlimited tries per action verb.</p>
+        </div>
+
+        <div onclick="startGame('challenge')" class="glass-panel p-5 rounded-3xl hover:border-pink-400 hover:scale-[1.02] transition cursor-pointer text-left group relative overflow-hidden pulse-glow">
+          <div class="w-12 h-12 rounded-2xl bg-pink-500/20 flex items-center justify-center text-pink-300 mb-3 text-2xl group-hover:bg-pink-500 group-hover:text-white transition">
+            <i class="fa-solid fa-bolt"></i>
+          </div>
+          <h3 class="font-game text-2xl text-yellow-300 mb-1">Speed Challenge</h3>
+          <p class="text-xs text-purple-200">10-second countdown timer per question! Earn streak multipliers and race against the clock.</p>
+        </div>
+      </div>
+
+      <!-- Action Verb List Drawer -->
+      <div class="w-full glass-dark p-4 rounded-3xl text-left border border-white/10">
+        <div class="flex justify-between items-center mb-3">
+          <h4 class="font-game text-lg text-yellow-300 flex items-center">
+            <i class="fa-solid fa-book-open text-pink-400 mr-2"></i> Supported Action Verbs Index (<span id="verb-count-label">22</span>)
+          </h4>
+          <span class="text-[11px] text-purple-300">AI Pose Rules Enabled</span>
+        </div>
+        <div id="verbs-grid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2 text-xs max-h-48 overflow-y-auto pr-1">
+          <!-- Populated Dynamically -->
+        </div>
+      </div>
+    </section>
+
+    <section id="game-screen" class="w-full flex-col items-center hidden">
+      
+      <!-- Top Dynamic Score Dashboard -->
+      <div class="w-full max-w-5xl glass-panel rounded-2xl p-3 mb-3 flex flex-wrap justify-between items-center gap-2">
+        <div class="flex items-center space-x-3">
+          <div class="bg-pink-500/20 border border-pink-500/40 px-3 py-1 rounded-xl flex items-center">
+            <i class="fa-solid fa-star text-yellow-400 mr-2 text-base"></i>
+            <div>
+              <span class="text-[9px] text-purple-200 uppercase block leading-none">Score</span>
+              <span id="current-score" class="font-game text-lg text-white">0</span>
+            </div>
+          </div>
+
+          <div class="bg-purple-500/20 border border-purple-500/40 px-3 py-1 rounded-xl flex items-center">
+            <i class="fa-solid fa-fire text-orange-400 mr-2 text-base"></i>
+            <div>
+              <span class="text-[9px] text-purple-200 uppercase block leading-none">Streak</span>
+              <span id="current-streak" class="font-game text-lg text-yellow-300">0x</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Timer Display -->
+        <div id="timer-container" class="flex items-center bg-red-500/20 border border-red-500/40 px-4 py-1 rounded-xl">
+          <i class="fa-solid fa-stopwatch text-red-400 mr-2 text-base"></i>
+          <div>
+            <span class="text-[9px] text-red-200 uppercase block leading-none">Timer</span>
+            <span id="timer-display" class="font-game text-lg text-red-300">10s</span>
+          </div>
+        </div>
+
+        <div class="text-right">
+          <span class="text-[10px] text-purple-300 block">Progress</span>
+          <span id="question-tracker" class="font-game text-base text-pink-300">1 / 10</span>
+        </div>
+      </div>
+
+      <!-- Camera Viewport Canvas Stack -->
+      <div class="relative w-full max-w-5xl aspect-[4/3] sm:aspect-[16/9] bg-slate-950 rounded-3xl overflow-hidden shadow-2xl border-2 border-white/15">
+        
+        <!-- Webcam Video & AI Overlay Canvas -->
+        <video id="webcam" class="mirror absolute inset-0 w-full h-full object-cover" autoplay playsinline></video>
+        <canvas id="output-canvas" class="mirror absolute inset-0 w-full h-full object-cover z-10"></canvas>
+
+        <!-- Skeleton Toggle Button -->
+        <div class="absolute top-3 left-3 z-20 flex space-x-2">
+          <button onclick="toggleSkeleton()" class="glass-dark px-3 py-1.5 rounded-xl text-xs font-semibold text-purple-200 hover:text-white flex items-center border border-white/20">
+            <i class="fa-solid fa-diagram-project mr-1.5 text-pink-400"></i> Skeleton: <span id="skeleton-status" class="ml-1 text-green-400">ON</span>
+          </button>
+        </div>
+
+        <!-- Real-Time AI Sensing Indicator -->
+        <div class="absolute top-3 right-3 z-20 glass-dark px-3.5 py-1.5 rounded-2xl border border-white/20 flex items-center space-x-2">
+          <div id="ai-indicator" class="w-2.5 h-2.5 rounded-full bg-yellow-400 animate-ping"></div>
+          <span class="text-xs text-purple-200 font-medium">AI Detecting:</span>
+          <span id="detected-action-badge" class="font-game text-xs text-yellow-300">WAITING...</span>
+        </div>
+
+        <!-- Question Floating Prompt Banner -->
+        <div class="absolute top-14 inset-x-3 z-20 flex justify-center">
+          <div class="glass-dark px-5 py-3 rounded-2xl border border-pink-500/40 text-center max-w-2xl shadow-2xl">
+            <span id="question-category-tag" class="text-[10px] uppercase font-bold text-pink-400 tracking-wider block mb-0.5">Physical Body Action</span>
+            <p id="sentence-prompt" class="font-game text-lg sm:text-2xl text-white tracking-wide">
+              Loading grammar prompt...
+            </p>
+          </div>
+        </div>
+
+        <!-- Bottom Gesture Posture Guide -->
+        <div class="absolute bottom-3 inset-x-3 z-20 flex justify-center">
+          <div class="glass-dark px-4 py-2 rounded-2xl border border-cyan-500/40 flex items-center space-x-3 max-w-lg shadow-xl">
+            <div id="pose-guide-icon" class="w-8 h-8 rounded-xl bg-cyan-500/20 text-cyan-300 flex items-center justify-center text-lg font-bold">
+              <i class="fa-solid fa-person-running"></i>
+            </div>
+            <div class="text-left">
+              <span class="text-[10px] text-cyan-300 uppercase font-bold block">How to act out this verb:</span>
+              <p id="pose-guide-text" class="text-xs text-white font-medium leading-tight">Raise both arms high above your head.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Feedback Result Overlay Popup -->
+        <div id="result-banner" class="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/80 backdrop-blur-md hidden transition duration-300 p-4">
+          <div id="result-icon-container" class="w-20 h-20 rounded-full flex items-center justify-center text-4xl mb-3 shadow-xl">
+            <i id="result-icon" class="fa-solid"></i>
+          </div>
+          <h3 id="result-title" class="font-game text-3xl md:text-4xl text-white mb-1">CORRECT!</h3>
+          <p id="result-verb-info" class="text-sm md:text-base text-purple-200 max-w-md text-center mb-3"></p>
+          
+          <!-- Mini Grammar Lesson Card -->
+          <div class="glass-dark p-4 rounded-2xl max-w-lg text-left border border-yellow-500/30 text-xs">
+            <h4 class="font-game text-yellow-300 text-sm mb-1 flex items-center">
+              <i class="fa-solid fa-lightbulb text-yellow-400 mr-1.5"></i> Grammar Insight:
+            </h4>
+            <p id="grammar-insight-text" class="text-purple-100 leading-relaxed"></p>
+          </div>
+        </div>
+
+        <!-- AI Camera Loading Placeholder -->
+        <div id="camera-loading" class="absolute inset-0 z-30 bg-slate-950 flex flex-col items-center justify-center text-center p-6">
+          <div class="w-14 h-14 border-4 border-pink-500 border-t-transparent rounded-full animate-spin mb-3"></div>
+          <h3 class="font-game text-2xl text-white mb-1">Activating AI Pose Detector...</h3>
+          <p class="text-xs text-purple-300">Please enable web camera access in your browser.</p>
+        </div>
+
+      </div>
+
+      <!-- Exit and Controls Toolbar -->
+      <div class="w-full max-w-5xl mt-3 flex justify-between items-center glass-panel p-2.5 rounded-2xl">
+        <div class="flex items-center space-x-2 text-xs text-purple-200">
+          <i class="fa-solid fa-circle-info text-pink-400"></i>
+          <span class="hidden sm:inline">Ensure your upper body and arms are well lit and inside the camera frame.</span>
+        </div>
+        <button onclick="quitGame()" class="px-4 py-1.5 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-200 text-xs font-bold border border-red-500/30 transition">
+          <i class="fa-solid fa-right-from-bracket mr-1"></i> Quit Game
+        </button>
+      </div>
+
+    </section>
+
+    <section id="summary-screen" class="w-full max-w-2xl text-center py-6 glass-panel p-6 rounded-3xl border border-white/20 hidden">
+      <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 flex items-center justify-center text-4xl text-white mx-auto mb-3 shadow-xl bounce-subtle">
+        <i class="fa-solid fa-trophy"></i>
+      </div>
+      <h2 class="font-game text-3xl md:text-4xl text-white mb-1">Workout Complete!</h2>
+      <p id="summary-subtitle" class="text-purple-200 text-xs md:text-sm mb-5">You successfully acted out action verbs with your body!</p>
+
+      <!-- Score Breakdown Grid -->
+      <div class="bg-black/40 rounded-2xl p-4 border border-white/10 mb-5 grid grid-cols-3 gap-3">
+        <div>
+          <span class="text-[10px] text-purple-300 uppercase block">Total Score</span>
+          <span id="final-score" class="font-game text-2xl text-yellow-300">0</span>
+        </div>
+        <div>
+          <span class="text-[10px] text-purple-300 uppercase block">Accuracy</span>
+          <span id="final-accuracy" class="font-game text-2xl text-green-400">0%</span>
+        </div>
+        <div>
+          <span class="text-[10px] text-purple-300 uppercase block">Max Streak</span>
+          <span id="final-streak" class="font-game text-2xl text-pink-400">0</span>
+        </div>
+      </div>
+
+      <!-- Action Verbs Summary List -->
+      <div class="text-left bg-white/5 rounded-2xl p-3 border border-white/10 mb-5 max-h-48 overflow-y-auto">
+        <h4 class="font-game text-xs text-yellow-300 mb-2 uppercase">Verbs Tested in this Session:</h4>
+        <ul id="verbs-summary-list" class="space-y-1.5 text-xs">
+          <!-- Populated Dynamically -->
+        </ul>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex space-x-3 justify-center">
+        <button onclick="showScreen('menu-screen')" class="px-5 py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/20 transition">
+          <i class="fa-solid fa-house mr-1.5"></i> Main Menu
+        </button>
+        <button onclick="restartGame()" class="px-6 py-2.5 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-600 hover:opacity-90 text-white font-game text-sm shadow-lg transition">
+          <i class="fa-solid fa-rotate-right mr-1.5"></i> Play Again
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const ALL_VERBS_DATABASE = [
+      // CATEGORY 1: PHYSICAL & FULL BODY
+      {
+        verb: "jump",
+        category: "physical",
+        sentence: "The energetic kids like to _____ high into the air on the trampoline.",
+        gesture: "Jump up high towards the top of the frame!",
+        icon: "fa-person-running",
+        grammar: "JUMP is an action verb. In present continuous, we write: 'They are JUMPING'."
+      },
+      {
+        verb: "sit",
+        category: "physical",
+        sentence: "Please _____ down quietly in your chair during story time.",
+        gesture: "Squat/crouch down low into bottom half of video frame!",
+        icon: "fa-chair",
+        grammar: "SIT describes a posture action. The past tense of SIT is SAT."
+      },
+      {
+        verb: "stretch",
+        category: "physical",
+        sentence: "Athletes always _____ their arms and legs before starting a race.",
+        gesture: "Reach both arms straight up high above your head!",
+        icon: "fa-child-reaching",
+        grammar: "STRETCH is an action verb meaning extending your muscles."
+      },
+      {
+        verb: "hop",
+        category: "physical",
+        sentence: "Rabbits and kangaroos _____ around the green field.",
+        gesture: "Raise one foot or balance high on one side!",
+        icon: "fa-person",
+        grammar: "HOP is a physical action verb. Doubling the 'p' gives HOPPING."
+      },
+      {
+        verb: "dance",
+        category: "physical",
+        sentence: "We love to _____ whenever our favorite song comes on the radio.",
+        gesture: "Sway your hips and arms side to side continuously!",
+        icon: "fa-music",
+        grammar: "DANCE is a rhythmic physical action verb. Third person: 'She DANCES'."
+      },
+      {
+        verb: "run",
+        category: "physical",
+        sentence: "Cheetahs can _____ faster than any other land animal.",
+        gesture: "Pump your elbows/wrists back and forth quickly!",
+        icon: "fa-person-running",
+        grammar: "RUN is an irregular action verb. Present: RUN, Past: RAN."
+      },
+
+      // CATEGORY 2: HAND & UPPER BODY
+      {
+        verb: "clap",
+        category: "upper",
+        sentence: "The excited audience began to _____ after the amazing performance.",
+        gesture: "Bring both hands close together in front of your chest!",
+        icon: "fa-hands-clapping",
+        grammar: "CLAP is an action verb for striking hands together. Present participle: CLAPPING."
+      },
+      {
+        verb: "wave",
+        category: "upper",
+        sentence: "Be sure to _____ hello when you see your classmates.",
+        gesture: "Raise one hand high and shake it back and forth!",
+        icon: "fa-hand-wave",
+        grammar: "WAVE is a transitive action verb when greeting someone."
+      },
+      {
+        verb: "fly",
+        category: "upper",
+        sentence: "Eagles _____ gracefully over the tall mountain peaks.",
+        gesture: "Spread both arms wide out to your sides like wings!",
+        icon: "fa-plane",
+        grammar: "FLY is an action verb for moving through air. Third person: 'It FLIES'."
+      },
+      {
+        verb: "point",
+        category: "upper",
+        sentence: "You can _____ to the correct answer on the whiteboard.",
+        gesture: "Extend one arm straight out horizontally to the side!",
+        icon: "fa-hand-point-right",
+        grammar: "POINT is a directional action verb used to indicate locations."
+      },
+      {
+        verb: "cross",
+        category: "upper",
+        sentence: "The guard decided to _____ his arms while waiting at the door.",
+        gesture: "Cross both wrists/arms over your chest!",
+        icon: "fa-xmark",
+        grammar: "CROSS is an upper body action verb describing overlapping limbs."
+      },
+      {
+        verb: "touch",
+        category: "upper",
+        sentence: "Simon says: _____ your head with both hands!",
+        gesture: "Place both hands on top of your head!",
+        icon: "fa-hand",
+        grammar: "TOUCH is a sensory action verb expressing physical contact."
+      },
+
+      // CATEGORY 3: DAILY ACTIVITIES & TASKS
+      {
+        verb: "eat",
+        category: "daily",
+        sentence: "We usually _____ fresh fruits and vegetables for lunch.",
+        gesture: "Bring one hand repeatedly towards your mouth!",
+        icon: "fa-utensils",
+        grammar: "EAT is an irregular action verb: EAT, ATE, EATEN."
+      },
+      {
+        verb: "read",
+        category: "daily",
+        sentence: "I like to _____ interesting storybooks before going to sleep.",
+        gesture: "Hold both open hands together in front like a book!",
+        icon: "fa-book-open",
+        grammar: "READ is an irregular verb spelled the same in past tense but pronounced 'red'."
+      },
+      {
+        verb: "pray",
+        category: "daily",
+        sentence: "Many people _____ for peace and happiness around the world.",
+        gesture: "Join both palms together flat in front of chest!",
+        icon: "fa-hands-praying",
+        grammar: "PRAY is a daily spiritual action verb. Present participle: PRAYING."
+      },
+      {
+        verb: "push",
+        category: "daily",
+        sentence: "He needed to _____ the heavy supermarket cart up the ramp.",
+        gesture: "Push both palms straight out in front of camera!",
+        icon: "fa-hand-back-fist",
+        grammar: "PUSH is the opposite action verb of PULL."
+      },
+      {
+        verb: "pull",
+        category: "daily",
+        sentence: "Can you help me _____ this wooden wagon up the hill?",
+        gesture: "Pull fists back towards your ribs with elbows bent!",
+        icon: "fa-hand-fist",
+        grammar: "PULL describes exertive force towards your body."
+      },
+
+      // CATEGORY 4: EXPRESSIVE & SENSORY
+      {
+        verb: "laugh",
+        category: "expressive",
+        sentence: "The funny cartoon made all the children _____ together.",
+        gesture: "Hold one hand near mouth and stay still!",
+        icon: "fa-face-laugh",
+        grammar: "LAUGH is an expressive action verb. Expresses joy or humor."
+      },
+      {
+        verb: "sleep",
+        category: "expressive",
+        sentence: "Cats like to _____ in warm sunny spots on the rug.",
+        gesture: "Tilt head sideways onto folded hands near cheek!",
+        icon: "fa-bed",
+        grammar: "SLEEP is an irregular physical action verb: SLEEP, SLEPT."
+      },
+      {
+        verb: "dab",
+        category: "expressive",
+        sentence: "The dancer did a cool _____ stance when winning the trophy.",
+        gesture: "Tuck head into one bent elbow while extending the other arm!",
+        icon: "fa-wand-magic-sparkles",
+        grammar: "DAB is a modern expressive gesture action verb."
+      },
+      {
+        verb: "yawn",
+        category: "expressive",
+        sentence: "When you feel sleepy, you might _____ and stretch.",
+        gesture: "Cover mouth with one hand while tilting head back slightly!",
+        icon: "fa-face-tired",
+        grammar: "YAWN is an involuntary expressive body action verb."
+      },
+      {
+        verb: "bow",
+        category: "expressive",
+        sentence: "Performers usually _____ to thank the audience after the show.",
+        gesture: "Bend upper torso and shoulders forward low!",
+        icon: "fa-person-arrow-down-to-line",
+        grammar: "BOW is a gesture verb showing respect or appreciation."
+      }
+    ];
+
+    let selectedCategory = 'all';
+    let currentMode = 'practice';
+    let activeQuestions = [];
+    let questionIndex = 0;
+    let score = 0;
+    let streak = 0;
+    let maxStreak = 0;
+    let correctCount = 0;
+    let timerInterval = null;
+    let timeLeft = 10;
+    let isDetecting = false;
+    let poseDetector = null;
+    let cameraController = null;
+    let showSkeleton = true;
+    let soundEnabled = true;
+    let poseHistory = [];
+
+    // Web Audio Synthesizer Engine
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playSound(type) {
+      if (!soundEnabled) return;
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      if (type === 'correct') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(523.25, now);
+        osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.1);
+        osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.2);
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+        osc.start(now);
+        osc.stop(now + 0.35);
+      } else if (type === 'wrong') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(220, now);
+        osc.frequency.exponentialRampToValueAtTime(140, now + 0.2);
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+        osc.start(now);
+        osc.stop(now + 0.3);
+      } else if (type === 'tick') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, now);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.04);
+        osc.start(now);
+        osc.stop(now + 0.04);
+      }
+    }
+
+    function toggleAudio() {
+      soundEnabled = !soundEnabled;
+      document.getElementById('audio-icon').className = soundEnabled ? 'fa-solid fa-volume-high text-lg' : 'fa-solid fa-volume-xmark text-lg text-red-400';
+    }
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    function toggleSkeleton() {
+      showSkeleton = !showSkeleton;
+      document.getElementById('skeleton-status').innerText = showSkeleton ? 'ON' : 'OFF';
+      document.getElementById('skeleton-status').className = showSkeleton ? 'ml-1 text-green-400' : 'ml-1 text-red-400';
+    }
+
+    function selectCategory(cat) {
+      selectedCategory = cat;
+      const catBtns = document.querySelectorAll('.cat-btn');
+      catBtns.forEach(btn => {
+        btn.className = "cat-btn bg-white/5 hover:bg-white/15 text-purple-200 font-semibold text-xs py-2.5 px-3 rounded-2xl transition border border-white/10 text-center";
+      });
+
+      const activeBtn = document.getElementById(`cat-${cat}`);
+      if (activeBtn) {
+        activeBtn.className = "cat-btn bg-pink-500 text-white font-semibold text-xs py-2.5 px-3 rounded-2xl transition border border-pink-400 shadow-lg text-center";
+      }
+
+      renderVerbsGrid();
+    }
+
+    function renderVerbsGrid() {
+      const grid = document.getElementById('verbs-grid');
+      grid.innerHTML = '';
+      
+      const filtered = selectedCategory === 'all' 
+        ? ALL_VERBS_DATABASE 
+        : ALL_VERBS_DATABASE.filter(v => v.category === selectedCategory);
+
+      document.getElementById('verb-count-label').innerText = filtered.length;
+
+      filtered.forEach(v => {
+        const item = document.createElement('div');
+        item.className = "bg-white/5 hover:bg-white/10 p-2 rounded-xl text-center border border-white/5 flex flex-col items-center justify-center";
+        item.innerHTML = `
+          <i class="fa-solid ${v.icon} text-pink-400 text-sm mb-1"></i>
+          <strong class="text-white uppercase font-game text-[11px] block">${v.verb}</strong>
+        `;
+        grid.appendChild(item);
+      });
+    }
+
+    function showScreen(screenId) {
+      document.getElementById('menu-screen').classList.add('hidden');
+      document.getElementById('game-screen').classList.add('hidden');
+      document.getElementById('summary-screen').classList.add('hidden');
+      
+      const target = document.getElementById(screenId);
+      target.classList.remove('hidden');
+
+      if (screenId === 'game-screen') target.classList.add('flex');
+      else target.classList.remove('flex');
+    }
+
+    function loadHighScore() {
+      const saved = localStorage.getItem('act_it_out_highscore') || '0';
+      document.getElementById('global-highscore').innerText = saved;
+    }
+
+    function saveHighScore(newScore) {
+      const saved = parseInt(localStorage.getItem('act_it_out_highscore') || '0', 10);
+      if (newScore > saved) {
+        localStorage.setItem('act_it_out_highscore', newScore.toString());
+        document.getElementById('global-highscore').innerText = newScore;
+      }
+    }
+
+    function initCameraAndPose() {
+      const videoElement = document.getElementById('webcam');
+      const canvasElement = document.getElementById('output-canvas');
+      const canvasCtx = canvasElement.getContext('2d');
+
+      poseDetector = new Pose({
+        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
+      });
+
+      poseDetector.setOptions({
+        modelComplexity: 1,
+        smoothLandmarks: true,
+        enableSegmentation: false,
+        minDetectionConfidence: 0.5,
+        minTrackingConfidence: 0.5
+      });
+
+      poseDetector.onResults((results) => {
+        document.getElementById('camera-loading').classList.add('hidden');
+
+        canvasElement.width = videoElement.videoWidth || 640;
+        canvasElement.height = videoElement.videoHeight || 480;
+
+        canvasCtx.save();
+        canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+
+        if (results.poseLandmarks) {
+          if (showSkeleton) {
+            drawSkeleton(canvasCtx, results.poseLandmarks, canvasElement.width, canvasElement.height);
+          }
+
+          if (isDetecting) {
+            const detected = analyzePoseHeuristics(results.poseLandmarks);
+            updateAIDetectorBadge(detected);
+
+            if (detected) {
+              const currentTarget = activeQuestions[questionIndex].verb;
+              if (detected === currentTarget) {
+                handleAnswer(true, detected);
+              }
+            }
+          }
+        }
+        canvasCtx.restore();
+      });
+
+      cameraController = new Camera(videoElement, {
+        onFrame: async () => {
+          await poseDetector.send({ image: videoElement });
+        },
+        width: 640,
+        height: 480
+      });
+
+      cameraController.start();
+    }
+
+    /* Draw Skeleton Overlay with Dynamic Joint Colors */
+    function drawSkeleton(ctx, landmarks, width, height) {
+      const connections = [
+        [11, 12], [11, 13], [13, 15], [12, 14], [14, 16], // Arms
+        [11, 23], [12, 24], [23, 24]                      // Torso
+      ];
+
+      ctx.strokeStyle = '#ec4899';
+      ctx.lineWidth = 4;
+      connections.forEach(([i, j]) => {
+        const p1 = landmarks[i];
+        const p2 = landmarks[j];
+        if (p1 && p2 && p1.visibility > 0.4 && p2.visibility > 0.4) {
+          ctx.beginPath();
+          ctx.moveTo(p1.x * width, p1.y * height);
+          ctx.lineTo(p2.x * width, p2.y * height);
+          ctx.stroke();
+        }
+      });
+
+      landmarks.forEach((lm, idx) => {
+        if ([0, 11, 12, 13, 14, 15, 16, 23, 24].includes(idx) && lm.visibility > 0.4) {
+          ctx.fillStyle = '#facc15';
+          ctx.beginPath();
+          ctx.arc(lm.x * width, lm.y * height, 6, 0, 2 * Math.PI);
+          ctx.fill();
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+      });
+    }
+
+    function analyzePoseHeuristics(lm) {
+      const nose = lm[0];
+      const leftShoulder = lm[11], rightShoulder = lm[12];
+      const leftElbow = lm[13], rightElbow = lm[14];
+      const leftWrist = lm[15], rightWrist = lm[16];
+      const leftHip = lm[23], rightHip = lm[24];
+
+      if (!nose || !leftShoulder || !rightShoulder) return null;
+
+      const shoulderWidth = Math.abs(leftShoulder.x - rightShoulder.x);
+      const wristDist = Math.hypot(leftWrist.x - rightWrist.x, leftWrist.y - rightWrist.y);
+      const distLeftWristMouth = Math.hypot(leftWrist.x - nose.x, leftWrist.y - (nose.y + 0.05));
+      const distRightWristMouth = Math.hypot(rightWrist.x - nose.x, rightWrist.y - (nose.y + 0.05));
+
+      // Track Pose History for Motion/Velocity Actions
+      poseHistory.push({
+        leftWristY: leftWrist.y,
+        rightWristY: rightWrist.y,
+        leftWristX: leftWrist.x,
+        time: Date.now()
+      });
+      if (poseHistory.length > 15) poseHistory.shift();
+
+      // 1. TOUCH: Both hands touching head
+      if (Math.hypot(leftWrist.x - nose.x, leftWrist.y - nose.y) < 0.18 &&
+          Math.hypot(rightWrist.x - nose.x, rightWrist.y - nose.y) < 0.18) {
+        return "touch";
+      }
+
+      // 2. STRETCH: Both hands high up above head
+      if (leftWrist.y < nose.y - 0.15 && rightWrist.y < nose.y - 0.15 && wristDist < shoulderWidth * 2) {
+        return "stretch";
+      }
+
+      // 3. FLY: Both arms wide out to sides
+      if (leftWrist.y < leftShoulder.y && rightWrist.y < rightShoulder.y && Math.abs(leftWrist.x - rightWrist.x) > shoulderWidth * 2.2) {
+        return "fly";
+      }
+
+      // 4. PRAY: Hands together flat near chest
+      if (wristDist < 0.1 && leftWrist.y > nose.y + 0.05 && leftWrist.y < leftHip.y) {
+        return "pray";
+      }
+
+      // 5. CLAP: Hands striking close in front
+      if (wristDist < 0.12 && leftWrist.y > nose.y) {
+        return "clap";
+      }
+
+      // 6. READ: Open hands held together in front like a book
+      if (wristDist < 0.22 && Math.abs(leftWrist.y - rightWrist.y) < 0.08 && leftWrist.y > nose.y + 0.1) {
+        return "read";
+      }
+
+      // 7. CROSS: Wrists crossed over shoulders/chest
+      if (leftWrist.x < rightShoulder.x && rightWrist.x > leftShoulder.x) {
+        return "cross";
+      }
+
+      // 8. DAB: Tucking head to one bent elbow while other arm extends
+      if ((distLeftWristMouth < 0.12 && rightWrist.y < rightShoulder.y && rightWrist.x > rightShoulder.x) ||
+          (distRightWristMouth < 0.12 && leftWrist.y < leftShoulder.y && leftWrist.x < leftShoulder.x)) {
+        return "dab";
+      }
+
+      // 9. WAVE: One hand raised high waving
+      if ((leftWrist.y < nose.y - 0.12 && rightWrist.y > rightShoulder.y) || 
+          (rightWrist.y < nose.y - 0.12 && leftWrist.y > leftShoulder.y)) {
+        return "wave";
+      }
+
+      // 10. JUMP: Shoulders spike high into top zone
+      if (leftShoulder.y < 0.26 && rightShoulder.y < 0.26) {
+        return "jump";
+      }
+
+      // 11. SIT / SQUAT: Shoulders drop low in video frame
+      if (leftShoulder.y > 0.65 && rightShoulder.y > 0.65) {
+        return "sit";
+      }
+
+      // 12. BOW: Torso and shoulders bending forward low
+      if (leftShoulder.y > 0.55 && Math.abs(leftShoulder.x - rightShoulder.x) < shoulderWidth * 0.8) {
+        return "bow";
+      }
+
+      // 13. POINT: One arm extended far sideways
+      if ((Math.abs(leftWrist.x - leftShoulder.x) > shoulderWidth * 1.8 && rightWrist.y > rightShoulder.y) ||
+          (Math.abs(rightWrist.x - rightShoulder.x) > shoulderWidth * 1.8 && leftWrist.y > leftShoulder.y)) {
+        return "point";
+      }
+
+      // 14. PUSH: Both hands extended out straight in front
+      if (leftWrist.y > nose.y && rightWrist.y > nose.y && 
+          Math.abs(leftWrist.x - leftShoulder.x) < 0.15 && Math.abs(rightWrist.x - rightShoulder.x) < 0.15) {
+        return "push";
+      }
+
+      // 15. PULL: Fists pulled back tight to chest/ribs
+      if (leftWrist.y > leftShoulder.y && rightWrist.y > rightShoulder.y && 
+          leftElbow.x < leftShoulder.x - 0.1 && rightElbow.x > rightShoulder.x + 0.1) {
+        return "pull";
+      }
+
+      // 16. EAT: One hand moving repeatedly near mouth
+      if (distLeftWristMouth < 0.14 || distRightWristMouth < 0.14) {
+        return "eat";
+      }
+
+      // 17. SLEEP: Head tilted sideways on folded hands
+      if ((distLeftWristMouth < 0.2 || distRightWristMouth < 0.2) && Math.abs(leftShoulder.y - rightShoulder.y) > 0.05) {
+        return "sleep";
+      }
+
+      // 18. LAUGH: Hand near mouth holding still
+      if (distLeftWristMouth < 0.15 || distRightWristMouth < 0.15) {
+        return "laugh";
+      }
+
+      // 19. YAWN: Hand over mouth with slight upper head tilt back
+      if ((distLeftWristMouth < 0.16 || distRightWristMouth < 0.16) && nose.y < 0.3) {
+        return "yawn";
+      }
+
+      // 20. HOP: Standing balanced on one side / leg
+      if (leftHip && rightHip && Math.abs(leftHip.y - rightHip.y) > 0.08) {
+        return "hop";
+      }
+
+      // 21. RUN: Rapid pumping motion of arms in pose history
+      if (poseHistory.length >= 8) {
+        let maxDy = 0;
+        for (let i = 1; i < poseHistory.length; i++) {
+          maxDy += Math.abs(poseHistory[i].leftWristY - poseHistory[i-1].leftWristY);
+        }
+        if (maxDy > 0.4) return "run";
+      }
+
+      // 22. DANCE: Continuous horizontal swaying
+      if (poseHistory.length >= 10) {
+        let minX = 1, maxX = 0;
+        poseHistory.forEach(p => {
+          if (p.leftWristX < minX) minX = p.leftWristX;
+          if (p.leftWristX > maxX) maxX = p.leftWristX;
+        });
+        if (maxX - minX > 0.28) return "dance";
+      }
+
+      return null;
+    }
+
+    function updateAIDetectorBadge(detected) {
+      const badge = document.getElementById('detected-action-badge');
+      const indicator = document.getElementById('ai-indicator');
+      if (detected) {
+        badge.innerText = detected.toUpperCase();
+        badge.className = "font-game text-xs text-green-300 animate-pulse";
+        indicator.className = "w-2.5 h-2.5 rounded-full bg-green-400";
+      } else {
+        badge.innerText = "WAITING...";
+        badge.className = "font-game text-xs text-yellow-300";
+        indicator.className = "w-2.5 h-2.5 rounded-full bg-yellow-400 animate-ping";
+      }
+    }
+
+    function startGame(mode) {
+      currentMode = mode;
+      showScreen('game-screen');
+
+      if (!cameraController) {
+        initCameraAndPose();
+      }
+
+      restartGame();
+    }
+
+    function restartGame() {
+      const filtered = selectedCategory === 'all' 
+        ? ALL_VERBS_DATABASE 
+        : ALL_VERBS_DATABASE.filter(v => v.category === selectedCategory);
+
+      activeQuestions = [...filtered].sort(() => Math.random() - 0.5);
+      questionIndex = 0;
+      score = 0;
+      streak = 0;
+      maxStreak = 0;
+      correctCount = 0;
+
+      updateScoreUI();
+      showScreen('game-screen');
+      loadQuestion();
+    }
+
+    function loadQuestion() {
+      if (questionIndex >= activeQuestions.length) {
+        endGameSummary();
+        return;
+      }
+
+      const q = activeQuestions[questionIndex];
+      
+      document.getElementById('question-category-tag').innerText = `${q.category.toUpperCase()} ACTION VERB`;
+      document.getElementById('sentence-prompt').innerHTML = q.sentence.replace('_____', `<span class="text-pink-400 font-bold underline px-2">${q.verb.toUpperCase()}</span>`);
+      
+      document.getElementById('pose-guide-icon').innerHTML = `<i class="fa-solid ${q.icon}"></i>`;
+      document.getElementById('pose-guide-text').innerText = q.gesture;
+      document.getElementById('question-tracker').innerText = `${questionIndex + 1} / ${activeQuestions.length}`;
+
+      document.getElementById('result-banner').classList.add('hidden');
+
+      const timerContainer = document.getElementById('timer-container');
+      if (currentMode === 'challenge') {
+        timerContainer.classList.remove('hidden');
+        timeLeft = 10;
+        document.getElementById('timer-display').innerText = `${timeLeft}s`;
+        clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+          timeLeft--;
+          document.getElementById('timer-display').innerText = `${timeLeft}s`;
+          if (timeLeft <= 3 && timeLeft > 0) playSound('tick');
+          if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            handleAnswer(false, 'Time Out');
+          }
+        }, 1000);
+      } else {
+        timerContainer.classList.add('hidden');
+      }
+
+      isDetecting = true;
+    }
+
+    function handleAnswer(isCorrect, detectedAction) {
+      if (!isDetecting) return;
+      isDetecting = false;
+      clearInterval(timerInterval);
+
+      const q = activeQuestions[questionIndex];
+      const banner = document.getElementById('result-banner');
+      const iconContainer = document.getElementById('result-icon-container');
+      const icon = document.getElementById('result-icon');
+      const title = document.getElementById('result-title');
+      const verbInfo = document.getElementById('result-verb-info');
+      const insightText = document.getElementById('grammar-insight-text');
+
+      q.userSuccess = isCorrect;
+
+      if (isCorrect) {
+        playSound('correct');
+        streak++;
+        if (streak > maxStreak) maxStreak = streak;
+        correctCount++;
+
+        const pts = 100 + (streak * 25);
+        score += pts;
+
+        iconContainer.className = "w-20 h-20 rounded-full flex items-center justify-center text-4xl mb-2 shadow-xl bg-green-500 text-white";
+        icon.className = "fa-solid fa-check";
+        title.innerText = "EXCELLENT ACTION!";
+        title.className = "font-game text-3xl md:text-4xl text-green-400 mb-1";
+        verbInfo.innerHTML = `You physicalized <strong class="text-yellow-300 font-game">${q.verb.toUpperCase()}</strong>! (+${pts} pts)`;
+      } else {
+        playSound('wrong');
+        streak = 0;
+
+        iconContainer.className = "w-20 h-20 rounded-full flex items-center justify-center text-4xl mb-2 shadow-xl bg-red-500 text-white";
+        icon.className = "fa-solid fa-xmark";
+        title.innerText = "WRONG OR TIME OUT";
+        title.className = "font-game text-3xl md:text-4xl text-red-400 mb-1";
+        verbInfo.innerHTML = `Target Verb was <strong class="text-pink-300 font-game">${q.verb.toUpperCase()}</strong>`;
+      }
+
+      insightText.innerText = q.grammar;
+      banner.classList.remove('hidden');
+
+      updateScoreUI();
+      saveHighScore(score);
+
+      setTimeout(() => {
+        questionIndex++;
+        loadQuestion();
+      }, 3200);
+    }
+
+    function updateScoreUI() {
+      document.getElementById('current-score').innerText = score;
+      document.getElementById('current-streak').innerText = `${streak}x`;
+    }
+
+    function quitGame() {
+      clearInterval(timerInterval);
+      isDetecting = false;
+      showScreen('menu-screen');
+    }
+
+    function endGameSummary() {
+      clearInterval(timerInterval);
+      isDetecting = false;
+
+      const accuracy = activeQuestions.length > 0 ? Math.round((correctCount / activeQuestions.length) * 100) : 0;
+
+      document.getElementById('final-score').innerText = score;
+      document.getElementById('final-accuracy').innerText = `${accuracy}%`;
+      document.getElementById('final-streak').innerText = `${maxStreak}x`;
+
+      const summaryList = document.getElementById('verbs-summary-list');
+      summaryList.innerHTML = '';
+
+      activeQuestions.forEach(q => {
+        const li = document.createElement('li');
+        li.className = "flex justify-between items-center bg-black/30 p-2 rounded-xl border border-white/5";
+        li.innerHTML = `
+          <div class="flex items-center space-x-2">
+            <i class="${q.userSuccess ? 'fa-solid fa-circle-check text-green-400' : 'fa-solid fa-circle-xmark text-red-400'}"></i>
+            <span class="font-game text-white uppercase text-xs">${q.verb}</span>
+          </div>
+          <span class="text-[10px] text-purple-200">${q.grammar}</span>
+        `;
+        summaryList.appendChild(li);
+      });
+
+      showScreen('summary-screen');
+    }
+
+    // Startup Initializer
+    window.addEventListener('DOMContentLoaded', () => {
+      renderVerbsGrid();
+      loadHighScore();
+    });
+  </script>
+</body>
+</html>
