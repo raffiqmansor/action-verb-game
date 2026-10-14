@@ -99,11 +99,11 @@
       z-index: 10; min-width: 420px;
     }
     .prompt { font-size: 22px; font-weight: bold; color: #4ecca3; }
-    .hint { font-size: 14px; color: #ffd369; margin-top: 4px; font-style: italic; }
+    .hint { font-size: 15px; color: #ffd369; margin-top: 4px; font-weight: 600; }
     .score { font-size: 14px; margin-top: 6px; color: #b2bec3; }
     .timer { font-size: 18px; font-weight: bold; color: #ff6b6b; margin-top: 4px; }
 
-    /* HUGE ACTION VERB BANNER AT BOTTOM */
+    /* LARGE ACTION VERB BANNER AT BOTTOM */
     .action-bottom-banner {
       position: absolute;
       bottom: 25px;
@@ -116,10 +116,10 @@
       text-align: center;
       z-index: 20;
       box-shadow: 0 6px 20px rgba(0,0,0,0.6);
-      min-width: 320px;
+      min-width: 340px;
     }
     .action-bottom-text {
-      font-size: 34px;
+      font-size: 36px;
       font-weight: 900;
       color: #ffd369;
       text-transform: uppercase;
@@ -239,7 +239,7 @@
 <body>
 
   <h1>Act It Out! - 22 Action Verb Master</h1>
-  <p>Hold each physical action gesture clearly on camera to advance! Choose your game mode:</p>
+  <p>Act out each verb action on camera to advance! Choose your game mode:</p>
 
   <!-- Game Mode Selector -->
   <div class="mode-select-container">
@@ -374,36 +374,37 @@
   </div>
 
   <script>
+    // ACCURATE VERB INSTRUCTIONS & ACTION TARGETS
     const levelQuestions = {
       1: [
-        { sentence: "Can you _____ up high into the air?", target: "jump", verb: "JUMP", hint: "🙌 Raise both hands high above head!" },
-        { sentence: "She loves to _____ happy hands in class!", target: "clap", verb: "CLAP", hint: "👏 Hold hands together in front of chest!" },
-        { sentence: "Please _____ down low on your seat.", target: "sit", verb: "SIT", hint: "🪑 Bend shoulders down low on screen!" },
-        { sentence: "Always _____ up tall when singing.", target: "stand", verb: "STAND", hint: "🧍 Stand tall with shoulders high!" },
-        { sentence: "Can you _____ on one leg?", target: "hop", verb: "HOP", hint: "🦩 Raise right arm high above head!" }
+        { sentence: "Can you _____ up high into the air?", target: "jump", verb: "JUMP", hint: "🚀 Jump up with both arms high in the air!" },
+        { sentence: "She loves to _____ happy hands in class!", target: "clap", verb: "CLAP", hint: "👏 Clap both hands together in front of chest!" },
+        { sentence: "Please _____ down low on your chair.", target: "sit", verb: "SIT", hint: "🪑 Crouch or sit low on screen!" },
+        { sentence: "Always _____ up tall when singing.", target: "stand", verb: "STAND", hint: "🧍 Stand up tall and straight!" },
+        { sentence: "Can you _____ on one leg?", target: "hop", verb: "HOP", hint: "🦩 Hop up and down on one leg!" }
       ],
       2: [
-        { sentence: "The birds _____ high across the sky.", target: "fly", verb: "FLY", hint: "🦅 Spread both arms wide to sides!" },
-        { sentence: "Always _____ your hand to say hello.", target: "wave", verb: "WAVE", hint: "👋 Raise one hand high above head!" },
-        { sentence: "Please _____ both arms up to the ceiling.", target: "stretch", verb: "STRETCH", hint: "🙆 Both hands straight up above shoulders!" },
-        { sentence: "He will _____ the ball across the yard.", target: "throw", verb: "THROW", hint: "⚾ Extend one arm forward towards camera!" },
-        { sentence: "Try to _____ the ball with both hands!", target: "catch", verb: "CATCH", hint: "🤲 Hold both hands wide out in front!" },
-        { sentence: "Please _____ at the correct answer on screen.", target: "point", verb: "POINT", hint: "👉 Point finger close to camera lens!" }
+        { sentence: "The birds _____ high across the sky.", target: "fly", verb: "FLY", hint: "🦅 Spread both arms wide to sides like wings!" },
+        { sentence: "Always _____ your hand to say hello.", target: "wave", verb: "WAVE", hint: "👋 Raise one hand high and wave it side-to-side!" },
+        { sentence: "Please _____ both arms up to the ceiling.", target: "stretch", verb: "STRETCH", hint: "🙆 Reach both arms straight up high!" },
+        { sentence: "He will _____ the ball across the yard.", target: "throw", verb: "THROW", hint: "⚾ Mime throwing a ball forward!" },
+        { sentence: "Try to _____ the ball with both hands!", target: "catch", verb: "CATCH", hint: "🤲 Hold both hands out in front to catch!" },
+        { sentence: "Please _____ at the correct answer on screen.", target: "point", verb: "POINT", hint: "👉 Point your finger directly at the camera!" }
       ],
       3: [
-        { sentence: "Use a pencil to _____ your name.", target: "write", verb: "WRITE", hint: "✍️ Hold one hand right in front of chest!" },
-        { sentence: "I love to _____ colorful pictures.", target: "draw", verb: "DRAW", hint: "🎨 Move hand across your chest!" },
-        { sentence: "Open your book and _____ silently.", target: "read", verb: "READ", hint: "📖 Open both hands together like a book!" },
+        { sentence: "Use a pencil to _____ your name.", target: "write", verb: "WRITE", hint: "✍️ Mime writing with a pencil in the air!" },
+        { sentence: "I love to _____ colorful pictures.", target: "draw", verb: "DRAW", hint: "🎨 Move your hand like drawing on paper!" },
+        { sentence: "Open your book and _____ silently.", target: "read", verb: "READ", hint: "📖 Hold both hands open like holding a book!" },
         { sentence: "Please _____ your desk after painting.", target: "clean", verb: "CLEAN", hint: "🧹 Wipe hand left and right across chest!" },
-        { sentence: "Always _____ your hands before eating.", target: "wash", verb: "WASH", hint: "🧼 Rub hands together close to chest!" }
+        { sentence: "Always _____ your hands before eating.", target: "wash", verb: "WASH", hint: "🧼 Rub both hands together in front!" }
       ],
       4: [
-        { sentence: "Please don't _____ inside the quiet room!", target: "shout", verb: "SHOUT", hint: "🗣️ Cup both hands directly around mouth!" },
-        { sentence: "Always _____ to show a happy face!", target: "smile", verb: "SMILE", hint: "😊 Point finger directly near your face!" },
-        { sentence: "The funny joke made everyone _____ out loud.", target: "laugh", verb: "LAUGH", hint: "😂 Hold hands against belly!" },
-        { sentence: "Let's _____ our favorite song together!", target: "sing", verb: "SING", hint: "🎤 Hold hand up near mouth like microphone!" },
-        { sentence: "You can _____ across the playground freely.", target: "skip", verb: "SKIP", hint: "🏃 Move hand up and down in front!" },
-        { sentence: "Gently _____ your nose to answer.", target: "touch", verb: "TOUCH", hint: "👃 Touch nose directly with finger!" }
+        { sentence: "Please don't _____ inside the quiet room!", target: "shout", verb: "SHOUT", hint: "🗣️ Place both hands around your mouth!" },
+        { sentence: "Always _____ to show a happy face!", target: "smile", verb: "SMILE", hint: "😊 Point finger right next to your lips/smile!" },
+        { sentence: "The funny joke made everyone _____ out loud.", target: "laugh", verb: "LAUGH", hint: "😂 Place both hands on your belly!" },
+        { sentence: "Let's _____ our favorite song together!", target: "sing", verb: "SING", hint: "🎤 Hold one hand near mouth like a microphone!" },
+        { sentence: "You can _____ across the playground freely.", target: "skip", verb: "SKIP", hint: "🏃 Step and sway side-to-side!" },
+        { sentence: "Gently _____ your nose to answer.", target: "touch", verb: "TOUCH", hint: "👃 Touch your nose with your finger!" }
       ]
     };
 
@@ -415,9 +416,12 @@
     let isDetecting = false;
     let unlockedBadges = { 1: false, 2: false, 3: false, 4: false };
 
-    // Pose Hold Timer Variables (1.5 Seconds)
+    // Previous shoulder positions for vertical bounce detection
+    let prevShoulderY = null;
+    let bounceCount = 0;
+
     let holdStartTime = null;
-    const HOLD_REQUIRED_MS = 1500;
+    const HOLD_REQUIRED_MS = 1200;
 
     let countdownTimer = null;
     let timeLeft = 10;
@@ -569,6 +573,8 @@
       clearInterval(countdownTimer);
       feedbackEl.style.display = 'none';
       holdStartTime = null;
+      bounceCount = 0;
+      prevShoulderY = null;
       holdProgressFill.style.width = '0%';
 
       const questions = levelQuestions[currentLevel];
@@ -599,7 +605,6 @@
       hintEl.innerText = q.hint;
       scoreEl.innerText = `Lvl ${currentLevel} | Verb ${totalCompletedVerbs + 1}/22`;
 
-      // DISPLAY HUGE BOTTOM ACTION BANNER
       bottomText.innerText = `ACTION: ${q.verb}`;
       bottomBanner.style.display = 'block';
 
@@ -607,7 +612,7 @@
       startTimer();
     }
 
-    // STRICT POSE DETECTION ENGINE WITH POSE-HOLD DELAY
+    // STRICT GESTURE ENGINE MATCHING PHYSICAL ACTIONS
     function onResults(results) {
       canvasCtx.save();
       canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
@@ -617,77 +622,97 @@
         const leftWrist = lm[15], rightWrist = lm[16];
         const leftShoulder = lm[11], rightShoulder = lm[12];
         const nose = lm[0];
-        const leftElbow = lm[13], rightElbow = lm[14];
         const currentTarget = levelQuestions[currentLevel][currentQIndex].target;
 
         let poseMatched = false;
+        const avgShoulderY = (leftShoulder.y + rightShoulder.y) / 2;
 
-        // STRICT GESTURE MATCHING RULES
+        // Detect vertical bounce motion (hopping/jumping/skipping)
+        let isBouncing = false;
+        if (prevShoulderY !== null) {
+          if (Math.abs(avgShoulderY - prevShoulderY) > 0.035) {
+            bounceCount++;
+            if (bounceCount > 2) isBouncing = true;
+          }
+        }
+        prevShoulderY = avgShoulderY;
+
         switch (currentTarget) {
-          case 'jump':
-          case 'stretch':
-            // Both hands must be held distinctly above shoulders
-            if (leftWrist.y < leftShoulder.y - 0.15 && rightWrist.y < rightShoulder.y - 0.15) poseMatched = true;
+          case 'hop':
+            // Vertical hopping motion
+            if (isBouncing || (leftWrist.y < leftShoulder.y && rightWrist.y > rightShoulder.y)) poseMatched = true;
             break;
 
-          case 'hop':
+          case 'jump':
+            // Jump with both hands raised high
+            if ((leftWrist.y < leftShoulder.y - 0.12 && rightWrist.y < rightShoulder.y - 0.12) || isBouncing) poseMatched = true;
+            break;
+
+          case 'stretch':
+            // Reach straight up
+            if (leftWrist.y < leftShoulder.y - 0.2 && rightWrist.y < rightShoulder.y - 0.2) poseMatched = true;
+            break;
+
           case 'wave':
-            // One wrist held distinctly above nose height
-            if (leftWrist.y < nose.y - 0.1 || rightWrist.y < nose.y - 0.1) poseMatched = true;
+            // One hand waving above nose
+            if (leftWrist.y < nose.y - 0.08 || rightWrist.y < nose.y - 0.08) poseMatched = true;
             break;
 
           case 'clap':
           case 'wash':
-            // Both hands close together in front of chest
-            if (Math.hypot(leftWrist.x - rightWrist.x, leftWrist.y - rightWrist.y) < 0.18 && leftWrist.y > nose.y) poseMatched = true;
+            // Hands together in front
+            if (Math.hypot(leftWrist.x - rightWrist.x, leftWrist.y - rightWrist.y) < 0.16) poseMatched = true;
             break;
 
           case 'fly':
-            // Both wrists extended far laterally past shoulders
-            if (Math.abs(leftWrist.x - rightWrist.x) > 0.55 && leftWrist.y < leftShoulder.y + 0.2) poseMatched = true;
+            // Wings wide
+            if (Math.abs(leftWrist.x - rightWrist.x) > 0.52) poseMatched = true;
             break;
 
           case 'sit':
-            // Shoulders dropped noticeably lower on screen
-            if (leftShoulder.y > 0.62 && rightShoulder.y > 0.62) poseMatched = true;
+            // Drop down in frame
+            if (avgShoulderY > 0.6) poseMatched = true;
             break;
 
           case 'stand':
-            // Shoulders upright in top half
-            if (leftShoulder.y < 0.45 && rightShoulder.y < 0.45 && leftWrist.y > leftShoulder.y) poseMatched = true;
+            // Stand upright
+            if (avgShoulderY < 0.45 && leftWrist.y > leftShoulder.y) poseMatched = true;
+            break;
+
+          case 'shout':
+            // Hands around mouth
+            if (Math.hypot(leftWrist.x - nose.x, leftWrist.y - nose.y) < 0.22 && Math.hypot(rightWrist.x - nose.x, rightWrist.y - nose.y) < 0.22) poseMatched = true;
+            break;
+
+          case 'smile':
+          case 'sing':
+          case 'touch':
+            // Hand near face/lips
+            if (Math.hypot(leftWrist.x - nose.x, leftWrist.y - nose.y) < 0.18 || Math.hypot(rightWrist.x - nose.x, rightWrist.y - nose.y) < 0.18) poseMatched = true;
+            break;
+
+          case 'laugh':
+            // Hands on stomach
+            if (leftWrist.y > leftShoulder.y + 0.2 && rightWrist.y > rightShoulder.y + 0.2 && Math.abs(leftWrist.x - rightWrist.x) < 0.25) poseMatched = true;
             break;
 
           case 'throw':
           case 'point':
-            // One hand extended forward past shoulder width
-            if (Math.abs(leftWrist.x - leftShoulder.x) > 0.3 || Math.abs(rightWrist.x - rightShoulder.x) > 0.3) poseMatched = true;
+            // Extension forward
+            if (Math.abs(leftWrist.x - leftShoulder.x) > 0.32 || Math.abs(rightWrist.x - rightShoulder.x) > 0.32) poseMatched = true;
             break;
 
           case 'catch':
           case 'read':
-            // Both hands open and held out in middle chest area
-            if (Math.abs(leftWrist.x - rightWrist.x) > 0.2 && Math.abs(leftWrist.x - rightWrist.x) < 0.45 && leftWrist.y > leftShoulder.y && leftWrist.y < 0.8) poseMatched = true;
+            // Hands open in front
+            if (Math.abs(leftWrist.x - rightWrist.x) > 0.2 && Math.abs(leftWrist.x - rightWrist.x) < 0.42 && leftWrist.y > leftShoulder.y) poseMatched = true;
             break;
 
-          case 'shout':
-          case 'sing':
-          case 'smile':
-          case 'touch':
-            // Hand brought close to nose/mouth area
-            if (Math.hypot(leftWrist.x - nose.x, leftWrist.y - nose.y) < 0.2 || Math.hypot(rightWrist.x - nose.x, rightWrist.y - nose.y) < 0.2) poseMatched = true;
-            break;
-
-          case 'clean':
-          case 'draw':
-          case 'write':
-          case 'laugh':
-          case 'skip':
-            // Active wrist movement in chest region
-            if (leftWrist.y > leftShoulder.y - 0.1 && leftWrist.y < leftShoulder.y + 0.3 && Math.abs(leftWrist.x - rightWrist.x) < 0.35) poseMatched = true;
+          default:
+            if (leftWrist.y < leftShoulder.y || rightWrist.y < rightShoulder.y) poseMatched = true;
             break;
         }
 
-        // POSE HOLD VERIFICATION LOGIC (1.5s Hold Required)
         if (poseMatched) {
           if (!holdStartTime) holdStartTime = Date.now();
           const elapsed = Date.now() - holdStartTime;
@@ -698,7 +723,6 @@
             evaluateAnswer(currentTarget);
           }
         } else {
-          // Reset hold timer if player drops pose
           holdStartTime = null;
           holdProgressFill.style.width = '0%';
         }
