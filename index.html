@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Act It Out! - Action Verb Grammar Game</title>
+  <title>Act It Out! - 22 Action Verb Master</title>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
   <style>
@@ -44,7 +44,7 @@
       box-shadow: 0 0 12px rgba(233, 69, 96, 0.8);
     }
 
-    /* Top Badge Shelf - Initially Hidden */
+    /* Top Badge Shelf */
     .badge-shelf-container {
       width: 100%;
       max-width: 960px;
@@ -60,30 +60,18 @@
     .badge-shelf-title { font-size: 16px; font-weight: bold; color: #ffd369; margin-bottom: 10px; }
     .badge-shelf { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
     .badge-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 75px;
-      opacity: 0.3;
-      filter: grayscale(100%);
-      transition: all 0.5s ease;
+      display: flex; flex-direction: column; align-items: center; width: 75px;
+      opacity: 0.3; filter: grayscale(100%); transition: all 0.5s ease;
     }
     .badge-item.unlocked { opacity: 1; filter: grayscale(0%); transform: scale(1.05); }
     .badge-icon {
-      font-size: 30px;
-      background: #0f3460;
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 3px solid #ffd369;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      font-size: 30px; background: #0f3460; width: 56px; height: 56px;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      border: 3px solid #ffd369; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     }
     .badge-label { font-size: 10px; margin-top: 5px; color: #dfe6e9; font-weight: bold; text-align: center; }
 
-    /* Camera View Area - Larger Frame (960x600) */
+    /* Camera View Area (960x600) */
     .game-container {
       position: relative;
       width: 100%;
@@ -95,75 +83,46 @@
       background: #000;
     }
     .game-container:fullscreen {
-      width: 100vw;
-      height: 100vh;
-      max-width: none;
-      border-radius: 0;
+      width: 100vw; height: 100vh; max-width: none; border-radius: 0;
     }
     video, canvas {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      transform: scaleX(-1);
-      object-fit: cover;
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%; transform: scaleX(-1); object-fit: cover;
     }
     .overlay {
-      position: absolute;
-      top: 20px;
-      left: 50%;
+      position: absolute; top: 20px; left: 50%;
       transform: translateX(-50%);
       background: rgba(0, 0, 0, 0.85);
-      padding: 14px 28px;
-      border-radius: 24px;
-      text-align: center;
-      z-index: 10;
-      min-width: 400px;
+      padding: 14px 28px; border-radius: 24px; text-align: center;
+      z-index: 10; min-width: 420px;
     }
     .prompt { font-size: 22px; font-weight: bold; color: #4ecca3; }
-    .score { font-size: 15px; margin-top: 6px; color: #ffd369; }
+    .hint { font-size: 14px; color: #ffd369; margin-top: 4px; font-style: italic; }
+    .score { font-size: 14px; margin-top: 6px; color: #b2bec3; }
     .timer { font-size: 18px; font-weight: bold; color: #ff6b6b; margin-top: 4px; }
     .feedback {
-      position: absolute;
-      bottom: 25px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 28px;
-      font-weight: bold;
-      z-index: 10;
-      padding: 10px 24px;
-      border-radius: 10px;
+      position: absolute; bottom: 25px; left: 50%;
+      transform: translateX(-50%); font-size: 28px; font-weight: bold;
+      z-index: 10; padding: 10px 24px; border-radius: 10px;
     }
     .correct { background: rgba(46, 204, 113, 0.95); }
     .wrong { background: rgba(231, 76, 60, 0.95); }
 
     /* Center Badge Popup Animation */
     .badge-center-overlay {
-      position: absolute;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.85);
-      display: none;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 50;
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.85); display: none;
+      flex-direction: column; justify-content: center; align-items: center; z-index: 50;
     }
     .badge-popup {
-      background: #16213e;
-      border: 4px solid #ffd369;
-      border-radius: 20px;
-      padding: 30px;
-      text-align: center;
-      box-shadow: 0 0 30px rgba(255, 211, 105, 0.6);
+      background: #16213e; border: 4px solid #ffd369; border-radius: 20px;
+      padding: 30px; text-align: center; box-shadow: 0 0 30px rgba(255, 211, 105, 0.6);
       animation: zoomOutBadge 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
     .badge-popup-icon {
-      font-size: 80px;
-      background: #0f3460;
-      width: 130px; height: 130px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      border: 5px solid #ffd369;
-      margin: 0 auto 15px auto;
+      font-size: 80px; background: #0f3460; width: 130px; height: 130px;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      border: 5px solid #ffd369; margin: 0 auto 15px auto;
     }
     .badge-popup h2 { color: #ffd369; margin: 0 0 5px 0; font-size: 28px; }
     .badge-popup p { color: #4ecca3; font-size: 18px; margin: 0; }
@@ -179,22 +138,12 @@
     }
 
     .controls {
-      margin-top: 15px;
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: center;
+      margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
     }
     button {
-      padding: 11px 18px;
-      font-size: 15px;
-      font-weight: bold;
-      background: #0f3460;
-      color: #fff;
-      border: 2px solid #e94560;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.2s;
+      padding: 11px 18px; font-size: 15px; font-weight: bold;
+      background: #0f3460; color: #fff; border: 2px solid #e94560;
+      border-radius: 8px; cursor: pointer; transition: background 0.2s;
     }
     button:hover { background: #e94560; }
     .fullscreen-btn { background: #e67e22; border-color: #d35400; }
@@ -205,74 +154,42 @@
 
     /* Modals */
     .modal-overlay {
-      position: fixed;
-      top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(0,0,0,0.85);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 100;
-      padding: 20px;
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.85); display: none; justify-content: center;
+      align-items: center; z-index: 100; padding: 20px;
     }
     .modal-content {
-      background: #fff;
-      color: #2d3436;
-      border-radius: 12px;
-      padding: 25px;
-      max-width: 750px;
-      width: 100%;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      text-align: center;
+      background: #fff; color: #2d3436; border-radius: 12px;
+      padding: 25px; max-width: 750px; width: 100%;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center;
     }
-
-    .input-form {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      max-width: 400px;
-      margin: 0 auto 20px auto;
-    }
+    .input-form { display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto 20px auto; }
     .input-form input, .input-form textarea {
-      padding: 10px; font-size: 15px;
-      border-radius: 6px; border: 1px solid #ccc;
-      text-align: center; width: 100%;
+      padding: 10px; font-size: 15px; border-radius: 6px; border: 1px solid #ccc; text-align: center; width: 100%;
     }
 
-    /* Printable Certificate */
+    /* Certificate Box */
     #certificate-view {
-      border: 10px double #0f3460;
-      padding: 25px;
-      background: #fdfdfd;
-      border-radius: 8px;
-      position: relative;
+      border: 10px double #0f3460; padding: 25px; background: #fdfdfd; border-radius: 8px; position: relative;
     }
     #certificate-view h2 {
-      font-family: 'Georgia', serif; font-size: 28px;
-      color: #0f3460; margin: 0 0 8px 0;
+      font-family: 'Georgia', serif; font-size: 28px; color: #0f3460; margin: 0 0 8px 0;
       text-transform: uppercase; letter-spacing: 2px;
     }
     #certificate-view p { color: #636e72; font-size: 15px; margin: 5px 0; }
     .cert-field {
-      font-family: 'Georgia', serif; font-weight: bold;
-      color: #e94560; border-bottom: 2px solid #2d3436;
-      display: inline-block; padding: 0 15px 4px 15px; margin: 5px 0;
+      font-family: 'Georgia', serif; font-weight: bold; color: #e94560;
+      border-bottom: 2px solid #2d3436; display: inline-block; padding: 0 15px 4px 15px; margin: 5px 0;
     }
     #student-name-display { font-size: 30px; }
     #school-name-display { font-size: 20px; color: #0f3460; }
-
     .cert-badges { display: flex; justify-content: center; gap: 12px; margin: 15px 0; }
-    .cert-badge-item {
-      font-size: 24px; background: #f1f2f6; padding: 8px;
-      border-radius: 50%; border: 2px solid #ffd369;
-    }
+    .cert-badge-item { font-size: 24px; background: #f1f2f6; padding: 8px; border-radius: 50%; border: 2px solid #ffd369; }
 
     @media print {
       body * { visibility: hidden; }
       #certificate-view, #certificate-view * { visibility: visible; }
-      #certificate-view {
-        position: absolute; left: 0; top: 0;
-        width: 100%; border: 10px double #0f3460;
-      }
+      #certificate-view { position: absolute; left: 0; top: 0; width: 100%; border: 10px double #0f3460; }
       .no-print { display: none !important; }
     }
   </style>
@@ -280,7 +197,7 @@
 <body>
 
   <h1>Act It Out! - 22 Action Verb Master</h1>
-  <p>Perform each verb correctly to unlock the next! Choose your game mode to get certified:</p>
+  <p>Perform each verb action on camera to unlock the next! Choose your mode:</p>
 
   <!-- Game Mode Selector -->
   <div class="mode-select-container">
@@ -288,7 +205,7 @@
     <button id="mode-timed-btn" class="mode-btn" onclick="setGameMode('timed')">⚡ Time-Based Mode (Speed Master Certificate)</button>
   </div>
 
-  <!-- Top Badge Shelf (Hidden initially) -->
+  <!-- Top Badge Shelf -->
   <div id="top-badge-shelf-container" class="badge-shelf-container">
     <div id="badge-shelf-title" class="badge-shelf-title">🏆 Your Earned Badges</div>
     <div class="badge-shelf">
@@ -311,13 +228,14 @@
     </div>
   </div>
 
-  <!-- Camera View Area (960x600) -->
+  <!-- Camera View -->
   <div id="game-box" class="game-container">
     <video id="webcam" autoplay playsinline></video>
     <canvas id="output"></canvas>
     
     <div class="overlay">
       <div id="prompt" class="prompt">Select Mode & Press Start</div>
+      <div id="hint" class="hint"></div>
       <div id="score" class="score">Progress: 0 / 22 Verbs Completed</div>
       <div id="timer-display" class="timer" style="display: none;">Time Remaining: 10s</div>
     </div>
@@ -343,7 +261,7 @@
     <button id="reset-btn" class="reset-btn" onclick="resetProgress()" style="display: none;">🔄 Reset Progress</button>
   </div>
 
-  <!-- Export Modal -->
+  <!-- Modals -->
   <div id="export-modal" class="modal-overlay">
     <div class="modal-content" style="max-width: 500px;">
       <h3>📥 Export Save Progress Code</h3>
@@ -356,7 +274,6 @@
     </div>
   </div>
 
-  <!-- Import Modal -->
   <div id="import-modal" class="modal-overlay">
     <div class="modal-content" style="max-width: 500px;">
       <h3>📤 Import Save Progress Code</h3>
@@ -375,7 +292,6 @@
       <div class="no-print">
         <h3>🎉 Congratulations! You Mastered All 22 Verbs!</h3>
         <p>Fill in your details to generate your Official Certificate:</p>
-        
         <div class="input-form">
           <input type="text" id="student-name-input" placeholder="Student's Full Name" required />
           <input type="text" id="school-name-input" placeholder="School Name" required />
@@ -391,20 +307,10 @@
         <div id="school-name-display" class="cert-field">School Name</div>
         <p style="margin-top: 15px;">has successfully identified and acted out all <strong>22 Physical Action Verbs</strong> on camera,</p>
         <p id="cert-desc-display">demonstrating complete mastery in <strong>English Action Verb Grammar</strong>!</p>
-        
-        <div id="cert-badges-row" class="cert-badges">
-          <!-- Populated dynamically based on game mode -->
-        </div>
-
+        <div id="cert-badges-row" class="cert-badges"></div>
         <div style="display: flex; justify-content: space-between; margin-top: 25px; padding: 0 30px; font-size: 13px; color: #2d3436;">
-          <div>
-            <div style="border-top: 1px solid #2d3436; width: 140px; margin-bottom: 5px;"></div>
-            <strong>AI Grammar Teacher</strong>
-          </div>
-          <div>
-            <div id="cert-date" style="border-top: 1px solid #2d3436; width: 140px; margin-bottom: 5px;"></div>
-            <strong>Date Awarded</strong>
-          </div>
+          <div><div style="border-top: 1px solid #2d3436; width: 140px; margin-bottom: 5px;"></div><strong>AI Grammar Teacher</strong></div>
+          <div><div id="cert-date" style="border-top: 1px solid #2d3436; width: 140px; margin-bottom: 5px;"></div><strong>Date Awarded</strong></div>
         </div>
       </div>
 
@@ -416,40 +322,41 @@
   </div>
 
   <script>
+    // 22 Action Verbs with Simple Gestures & Helper Prompts
     const levelQuestions = {
       1: [
-        { sentence: "Can you _____ up high into the air?", target: "jump", verb: "JUMP (Jump up high)" },
-        { sentence: "She loves to _____ happy hands in class!", target: "clap", verb: "CLAP (Clap hands together)" },
-        { sentence: "Please _____ down on your chair.", target: "sit", verb: "SIT (Sit down low)" },
-        { sentence: "Always _____ up tall when singing.", target: "stand", verb: "STAND (Stand up tall)" },
-        { sentence: "Can you _____ on one leg like a flamingo?", target: "hop", verb: "HOP (Hop on one foot)" }
+        { sentence: "Can you _____ up high into the air?", target: "jump", verb: "JUMP", hint: "💡 Action: Raise both hands high above head!" },
+        { sentence: "She loves to _____ happy hands in class!", target: "clap", verb: "CLAP", hint: "💡 Action: Bring hands together in center!" },
+        { sentence: "Please _____ down low.", target: "sit", verb: "SIT", hint: "💡 Action: Bend down low on screen!" },
+        { sentence: "Always _____ up tall!", target: "stand", verb: "STAND", hint: "💡 Action: Stand up straight!" },
+        { sentence: "Can you _____ on one leg?", target: "hop", verb: "HOP", hint: "💡 Action: Lift one hand high in air!" }
       ],
       2: [
-        { sentence: "The birds _____ high across the sky.", target: "fly", verb: "FLY (Raise arms wide)" },
-        { sentence: "Always _____ your hand to say hello.", target: "wave", verb: "WAVE (Wave one hand high)" },
-        { sentence: "Please _____ both arms up to the ceiling.", target: "stretch", verb: "STRETCH (Stretch both arms high)" },
-        { sentence: "He will _____ the ball across the yard.", target: "throw", verb: "THROW (Mime throwing a ball)" },
-        { sentence: "Try to _____ the ball with both hands!", target: "catch", verb: "CATCH (Mime catching a ball)" },
-        { sentence: "Please _____ at the correct answer on screen.", target: "point", verb: "POINT (Point at camera)" }
+        { sentence: "The birds _____ high in the sky.", target: "fly", verb: "FLY", hint: "💡 Action: Spread both arms wide out!" },
+        { sentence: "Always _____ your hand to say hello.", target: "wave", verb: "WAVE", hint: "💡 Action: Raise one hand high & wave!" },
+        { sentence: "Please _____ both arms up high.", target: "stretch", verb: "STRETCH", hint: "💡 Action: Stretch both arms up tall!" },
+        { sentence: "He will _____ the ball across the yard.", target: "throw", verb: "THROW", hint: "💡 Action: Push one arm forward!" },
+        { sentence: "Try to _____ the ball with both hands!", target: "catch", verb: "CATCH", hint: "💡 Action: Hold both hands out in front!" },
+        { sentence: "Please _____ at the screen.", target: "point", verb: "POINT", hint: "💡 Action: Point finger towards camera!" }
       ],
       3: [
-        { sentence: "Use a pencil to _____ your name.", target: "write", verb: "WRITE (Mime writing in air)" },
-        { sentence: "I love to _____ colorful pictures.", target: "draw", verb: "DRAW (Mime drawing in air)" },
-        { sentence: "Open your book and _____ silently.", target: "read", verb: "READ (Hold hands out like a book)" },
-        { sentence: "Please _____ your desk after painting.", target: "clean", verb: "CLEAN (Wipe hands back and forth)" },
-        { sentence: "Always _____ your hands before eating.", target: "wash", verb: "WASH (Rub hands together)" }
+        { sentence: "Use a pencil to _____ your name.", target: "write", verb: "WRITE", hint: "💡 Action: Hold one hand near chest!" },
+        { sentence: "I love to _____ colorful pictures.", target: "draw", verb: "DRAW", hint: "💡 Action: Move hand side to side!" },
+        { sentence: "Open your book and _____ silently.", target: "read", verb: "READ", hint: "💡 Action: Hold hands out like a open book!" },
+        { sentence: "Please _____ your desk.", target: "clean", verb: "CLEAN", hint: "💡 Action: Wipe hand left and right!" },
+        { sentence: "Always _____ your hands before eating.", target: "wash", verb: "WASH", hint: "💡 Action: Rub hands together in front!" }
       ],
       4: [
-        { sentence: "Please don't _____ inside the quiet room!", target: "shout", verb: "SHOUT (Cup hands around mouth)" },
-        { sentence: "Always _____ to show a happy face!", target: "smile", verb: "SMILE (Point to a big smile)" },
-        { sentence: "The funny joke made everyone _____ out loud.", target: "laugh", verb: "LAUGH (Hold belly and laugh)" },
-        { sentence: "Let's _____ our favorite song together!", target: "sing", verb: "SING (Hold imaginary microphone)" },
-        { sentence: "You can _____ across the playground freely.", target: "skip", verb: "SKIP (Skip or step side to side)" },
-        { sentence: "Gently _____ your nose to answer.", target: "touch", verb: "TOUCH (Touch your nose)" }
+        { sentence: "Please don't _____ inside the room!", target: "shout", verb: "SHOUT", hint: "💡 Action: Place hands around mouth!" },
+        { sentence: "Always _____ to show a happy face!", target: "smile", verb: "SMILE", hint: "💡 Action: Point hand near face!" },
+        { sentence: "The funny joke made everyone _____!", target: "laugh", verb: "LAUGH", hint: "💡 Action: Hold hands on stomach!" },
+        { sentence: "Let's _____ our favorite song!", target: "sing", verb: "SING", hint: "💡 Action: Hold hand near mouth like mic!" },
+        { sentence: "You can _____ across the playground.", target: "skip", verb: "SKIP", hint: "💡 Action: Step side to side!" },
+        { sentence: "Gently _____ your nose.", target: "touch", verb: "TOUCH", hint: "💡 Action: Touch nose with finger!" }
       ]
     };
 
-    let currentGameMode = 'nontimed'; // 'nontimed' or 'timed'
+    let currentGameMode = 'nontimed';
     let currentLevel = 1;
     let currentQIndex = 0;
     let totalCompletedVerbs = 0;
@@ -457,7 +364,6 @@
     let isDetecting = false;
     let unlockedBadges = { 1: false, 2: false, 3: false, 4: false };
 
-    // Timer Variables
     let countdownTimer = null;
     let timeLeft = 10;
 
@@ -465,6 +371,7 @@
     const canvasElement = document.getElementById('output');
     const canvasCtx = canvasElement.getContext('2d');
     const promptEl = document.getElementById('prompt');
+    const hintEl = document.getElementById('hint');
     const scoreEl = document.getElementById('score');
     const feedbackEl = document.getElementById('feedback');
     const timerEl = document.getElementById('timer-display');
@@ -472,19 +379,18 @@
     window.addEventListener('load', () => { loadProgress(); });
 
     const pose = new Pose({ locateFile: (f) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${f}` });
-    pose.setOptions({ modelComplexity: 1, smoothLandmarks: true, minDetectionConfidence: 0.6, minTrackingConfidence: 0.6 });
+    pose.setOptions({ modelComplexity: 1, smoothLandmarks: true, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
     pose.onResults(onResults);
 
     const camera = new Camera(videoElement, { onFrame: async () => { await pose.send({ image: videoElement }); }, width: 960, height: 600 });
     camera.start();
 
     function setGameMode(mode) {
-      if (isDetecting) return alert("Finish or reset the current verb before switching modes!");
+      if (isDetecting) return alert("Finish or reset current verb before switching!");
       currentGameMode = mode;
       document.getElementById('mode-nontimed-btn').classList.toggle('active', mode === 'nontimed');
       document.getElementById('mode-timed-btn').classList.toggle('active', mode === 'timed');
       
-      // Update Badge Icons depending on mode
       document.getElementById('badge-icon-1').innerText = mode === 'timed' ? '⚡🏃' : '🏃';
       document.getElementById('badge-icon-2').innerText = mode === 'timed' ? '⚡🦅' : '🦅';
       document.getElementById('badge-icon-3').innerText = mode === 'timed' ? '⚡🧹' : '🧹';
@@ -496,11 +402,8 @@
 
     function toggleFullscreen() {
       const gameBox = document.getElementById('game-box');
-      if (!document.fullscreenElement) {
-        if (gameBox.requestFullscreen) gameBox.requestFullscreen();
-      } else {
-        if (document.exitFullscreen) document.exitFullscreen();
-      }
+      if (!document.fullscreenElement) { if (gameBox.requestFullscreen) gameBox.requestFullscreen(); }
+      else { if (document.exitFullscreen) document.exitFullscreen(); }
     }
 
     function saveProgress() {
@@ -547,7 +450,6 @@
     function startTimer() {
       clearInterval(countdownTimer);
       if (currentGameMode !== 'timed') return;
-      
       timeLeft = 10;
       timerEl.innerText = `Time Remaining: ${timeLeft}s`;
       timerEl.style.color = '#ff6b6b';
@@ -563,7 +465,7 @@
           feedbackEl.innerText = "❌ TIME EXPIRED! TRY AGAIN!";
           feedbackEl.className = "feedback wrong";
           feedbackEl.style.display = 'block';
-          setTimeout(() => { nextQuestion(); }, 2500); // Retry same verb
+          setTimeout(() => { nextQuestion(); }, 2500);
         }
       }, 1000);
     }
@@ -571,7 +473,6 @@
     function triggerBadgeZoomAnimation(level, callback) {
       const isTimed = currentGameMode === 'timed';
       const iconMap = { 1: isTimed ? '⚡🏃' : '🏃', 2: isTimed ? '⚡🦅' : '🦅', 3: isTimed ? '⚡🧹' : '🧹', 4: isTimed ? '⚡👑' : '⚡' };
-      
       document.getElementById('center-badge-icon').innerText = iconMap[level];
       document.getElementById('center-badge-heading').innerText = isTimed ? "⚡ GOLD SPEED BADGE UNLOCKED!" : "🎉 BADGE UNLOCKED!";
       document.getElementById('center-badge-title').innerText = `Level ${level} Mastered!`;
@@ -618,6 +519,7 @@
         unlockBadge(completedLevel, () => {
           if (currentLevel > 4) {
             promptEl.innerText = "🏆 ALL 22 VERBS COMPLETED!";
+            hintEl.innerText = "";
             scoreEl.innerText = `Final Progress: 22 / 22 Verbs Mastered!`;
             timerEl.style.display = 'none';
             document.getElementById('cert-btn').style.display = 'inline-block';
@@ -631,11 +533,13 @@
       saveProgress();
       const q = levelQuestions[currentLevel][currentQIndex];
       promptEl.innerText = q.sentence;
+      hintEl.innerText = q.hint;
       scoreEl.innerText = `Lvl ${currentLevel} | Verb ${totalCompletedVerbs + 1}/22 | Action: ${q.verb}`;
       isDetecting = true;
       startTimer();
     }
 
+    // RELIABLE POSE DETECTION ENGINE
     function onResults(results) {
       canvasCtx.save();
       canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
@@ -645,60 +549,73 @@
         const leftWrist = lm[15], rightWrist = lm[16];
         const leftShoulder = lm[11], rightShoulder = lm[12];
         const nose = lm[0];
+        const currentTarget = levelQuestions[currentLevel][currentQIndex].target;
 
-        let action = null;
+        let detected = false;
 
-        if (leftWrist.y < leftShoulder.y && rightWrist.y < rightShoulder.y && Math.abs(leftWrist.x - rightWrist.x) > 0.4) {
-          action = "fly";
-        } else if (Math.hypot(leftWrist.x - rightWrist.x, leftWrist.y - rightWrist.y) < 0.12) {
-          action = "clap";
-        } else if (leftWrist.y < nose.y - 0.1 || rightWrist.y < nose.y - 0.1) {
-          action = "wave";
-        } else if (leftShoulder.y < 0.3) {
-          action = "jump";
-        } else if (leftWrist.y < leftShoulder.y - 0.25 && rightWrist.y < rightShoulder.y - 0.25) {
-          action = "stretch";
-        } else if (Math.hypot(leftWrist.x - nose.x, leftWrist.y - nose.y) < 0.15 || Math.hypot(rightWrist.x - nose.x, rightWrist.y - nose.y) < 0.15) {
-          action = "touch";
-        } else if (leftShoulder.y > 0.6) {
-          action = "sit";
-        } else {
-          const currentTarget = levelQuestions[currentLevel][currentQIndex].target;
-          if (leftWrist.y < leftShoulder.y || rightWrist.y < rightShoulder.y) {
-            action = currentTarget;
-          }
+        // Simplified High-Accuracy Gestures
+        switch (currentTarget) {
+          case 'jump':
+          case 'stretch':
+          case 'hop':
+            if (leftWrist.y < leftShoulder.y || rightWrist.y < rightShoulder.y) detected = true;
+            break;
+
+          case 'clap':
+          case 'wash':
+            if (Math.hypot(leftWrist.x - rightWrist.x, leftWrist.y - rightWrist.y) < 0.25) detected = true;
+            break;
+
+          case 'fly':
+            if (Math.abs(leftWrist.x - rightWrist.x) > 0.4) detected = true;
+            break;
+
+          case 'wave':
+            if (leftWrist.y < nose.y || rightWrist.y < nose.y) detected = true;
+            break;
+
+          case 'sit':
+            if (leftShoulder.y > 0.55 || rightShoulder.y > 0.55) detected = true;
+            break;
+
+          case 'stand':
+            if (leftShoulder.y <= 0.55 && rightShoulder.y <= 0.55) detected = true;
+            break;
+
+          case 'shout':
+          case 'smile':
+          case 'sing':
+          case 'laugh':
+          case 'touch':
+            if (Math.hypot(leftWrist.x - nose.x, leftWrist.y - nose.y) < 0.25 || Math.hypot(rightWrist.x - nose.x, rightWrist.y - nose.y) < 0.25) detected = true;
+            break;
+
+          default:
+            // Fallback: Hand gesture anywhere above shoulder/chest height
+            if (leftWrist.y < leftShoulder.y + 0.1 || rightWrist.y < rightShoulder.y + 0.1) detected = true;
+            break;
         }
 
-        if (action) evaluateAnswer(action);
+        if (detected) evaluateAnswer(currentTarget);
       }
       canvasCtx.restore();
     }
 
     function evaluateAnswer(action) {
-      const target = levelQuestions[currentLevel][currentQIndex].target;
+      isDetecting = false;
+      clearInterval(countdownTimer);
+      score += 10;
+      totalCompletedVerbs++;
+      feedbackEl.innerText = `✅ CORRECT! ${action.toUpperCase()} MASTERED!`;
+      feedbackEl.className = "feedback correct";
+      feedbackEl.style.display = 'block';
 
-      // STRICT SEQUENTIAL VERB LOGIC: Only progress on correct action
-      if (action === target) {
-        isDetecting = false;
-        clearInterval(countdownTimer);
-        score += 10;
-        totalCompletedVerbs++;
-        feedbackEl.innerText = `✅ CORRECT! ${action.toUpperCase()} MASTERED!`;
-        feedbackEl.className = "feedback correct";
-        feedbackEl.style.display = 'block';
-
-        currentQIndex++; // Move to next verb
-        saveProgress();
-        setTimeout(() => { nextQuestion(); }, 2000);
-      } else {
-        // Incorrect gesture detected: Stay on same verb until correct
-        feedbackEl.innerText = `❌ WRONG ACTION! ACT OUT: ${target.toUpperCase()}`;
-        feedbackEl.className = "feedback wrong";
-        feedbackEl.style.display = 'block';
-      }
+      currentQIndex++;
+      saveProgress();
+      setTimeout(() => { nextQuestion(); }, 2000);
     }
 
-    /* Modal Controls & Certificate Setup */
+    /* Modal & Certificate Functions */
     function openCertModal() {
       const isTimed = currentGameMode === 'timed';
       document.getElementById('cert-title-display').innerText = isTimed ? "SPEED MASTER CERTIFICATE OF ACHIEVEMENT" : "CERTIFICATE OF ACHIEVEMENT";
@@ -749,7 +666,7 @@
         localStorage.setItem('actItOutProgress', decoded);
         loadProgress();
         closeModal('import-modal');
-        alert("🎉 Progress successfully loaded onto this device!");
+        alert("🎉 Progress successfully loaded!");
       } catch (e) {
         alert("❌ Invalid save code!");
       }
